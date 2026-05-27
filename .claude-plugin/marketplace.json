@@ -10,7 +10,7 @@
       "name": "shipwright",
       "source": "./",
       "description": "Full shipping pipeline: 12 skills covering audit, code/UX/docs review, parallel building, frontend design, and PR ship/merge. Strict quality gates: code >9/10, UX 10/10, docs binary pass/fail.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Aran Chananar"
       },

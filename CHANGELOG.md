@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-28
+
+### Fixed
+
+- `marketplace.json` schema now matches the official `claude-code-marketplace.json` spec. Previous schema caused install error "This plugin uses a source type your Claude Code version does not support."
+  - `source` is now a string (`"./"`) instead of an object with `type`/`repo` keys
+  - Description moved from `metadata.description` to top-level (no `metadata` wrapper)
+  - Added `$schema` reference, per-plugin `author`, `homepage`, `repository`, `license`, `keywords`, `category` for discoverability
+
 ## [0.1.0] — 2026-05-27
 
 Initial release.
@@ -48,5 +57,6 @@ Initial release.
 - `CLAUDE.md` contributor rules
 - "When to use" headers on every review skill
 
-[Unreleased]: https://github.com/cloverink/shipwright/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/cloverink/shipwright/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/cloverink/shipwright/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/cloverink/shipwright/releases/tag/v0.1.0
