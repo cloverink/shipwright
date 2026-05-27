@@ -1,21 +1,33 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "shipwright",
+  "description": "Production-grade Claude Code skills for shipping quality code via audit → review → docs → PR pipeline.",
   "owner": {
     "name": "Aran Chananar"
-  },
-  "metadata": {
-    "version": "0.1.0",
-    "description": "Production-grade Claude Code skills for shipping quality code via audit → review → docs → PR pipeline."
   },
   "plugins": [
     {
       "name": "shipwright",
-      "description": "Full shipping pipeline: 12 skills covering audit, code/UX/docs review, parallel building, frontend design, and PR ship/merge.",
+      "source": "./",
+      "description": "Full shipping pipeline: 12 skills covering audit, code/UX/docs review, parallel building, frontend design, and PR ship/merge. Strict quality gates: code >9/10, UX 10/10, docs binary pass/fail.",
       "version": "0.1.0",
-      "source": {
-        "source": "github",
-        "repo": "cloverink/shipwright"
-      }
+      "author": {
+        "name": "Aran Chananar"
+      },
+      "homepage": "https://github.com/cloverink/shipwright",
+      "repository": "https://github.com/cloverink/shipwright",
+      "license": "MIT",
+      "keywords": [
+        "claude-code",
+        "shipping-pipeline",
+        "code-review",
+        "ux-review",
+        "audit",
+        "ci-cd",
+        "automation",
+        "quality-gates"
+      ],
+      "category": "productivity"
     }
   ]
 }
