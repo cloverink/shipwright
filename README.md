@@ -1,5 +1,10 @@
 # shipwright
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-7c3aed)](https://docs.anthropic.com/en/docs/claude-code)
+[![Skills](https://img.shields.io/badge/skills-12-10b981)](skills/)
+[![Version](https://img.shields.io/github/v/release/cloverink/shipwright?color=f59e0b)](https://github.com/cloverink/shipwright/releases)
+
 Production-grade [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for shipping quality code.
 
 ```
