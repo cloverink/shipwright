@@ -1,8 +1,7 @@
 {
   "name": "shipwright",
   "owner": {
-    "name": "Aran Chananar",
-    "url": "https://github.com/cloverink"
+    "name": "Aran Chananar"
   },
   "metadata": {
     "version": "0.1.0",
@@ -14,7 +13,7 @@
       "description": "Full shipping pipeline: 12 skills covering audit, code/UX/docs review, parallel building, frontend design, and PR ship/merge.",
       "version": "0.1.0",
       "source": {
-        "type": "github",
+        "source": "github",
         "repo": "cloverink/shipwright"
       }
     }
