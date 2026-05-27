@@ -1,0 +1,19 @@
+{
+  "name": "shipwright",
+  "description": "Production-grade shipping pipeline: audit → review → docs → PR",
+  "version": "0.1.0",
+  "skills": [
+    "./skills/ship",
+    "./skills/push",
+    "./skills/merge-pr",
+    "./skills/audit-full",
+    "./skills/review-full",
+    "./skills/review-code-fix",
+    "./skills/review-ux-fix",
+    "./skills/update-docs",
+    "./skills/review-docs",
+    "./skills/parallel-builder",
+    "./skills/frontend-design",
+    "./skills/skill-creator"
+  ]
+}

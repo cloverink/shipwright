@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.code-workspace
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Backups / temp
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.tmp
+
+# Local Claude Code state (do NOT ignore .claude-plugin/)
+.claude/settings.local.json
