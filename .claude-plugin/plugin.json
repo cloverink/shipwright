@@ -1,7 +1,7 @@
 {
   "name": "shipwright",
   "description": "Production-grade shipping pipeline: parallel Opus audit + review, same reviewer across fix rounds, docs sync, PR",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": {
     "name": "Aran Chananar"
   },

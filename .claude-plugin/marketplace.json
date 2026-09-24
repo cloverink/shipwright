@@ -9,8 +9,8 @@
     {
       "name": "shipwright",
       "source": "./",
-      "description": "Full shipping pipeline: 12 skills + a read-only Opus code-reviewer agent. Audit and review run as one parallel batch, the same reviewer re-checks every fix round (faster, no oscillating scores). Strict gates: code ≥9.5/10, UX 10/10, docs binary pass/fail.",
-      "version": "0.1.1",
+      "description": "Full shipping pipeline: 12 skills + a read-only Opus code-reviewer agent. Audit and review run as one parallel batch, the same reviewer re-checks every fix round (faster, no oscillating scores). Strict gates: code \u22659.5/10, UX 10/10, docs binary pass/fail.",
+      "version": "0.2.0",
       "author": {
         "name": "Aran Chananar"
       },

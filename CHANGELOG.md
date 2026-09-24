@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-24
+
 Review flow rebuilt on the harness that ships real work in production: faster rounds, stable scores, Opus on every verdict.
 
 ### Added
@@ -83,6 +85,7 @@ Initial release.
 - `CLAUDE.md` contributor rules
 - "When to use" headers on every review skill
 
-[Unreleased]: https://github.com/cloverink/shipwright/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/cloverink/shipwright/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/cloverink/shipwright/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/cloverink/shipwright/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/cloverink/shipwright/releases/tag/v0.1.0
