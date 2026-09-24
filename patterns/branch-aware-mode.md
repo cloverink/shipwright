@@ -6,9 +6,9 @@ Skills that change behavior based on your current git branch.
 
 ```
 if (current branch == main) {
-  // Standalone mode — whole-project scope
+  // Standalone mode: whole-project scope
 } else {
-  // In-ticket mode — scoped to diff vs main
+  // In-ticket mode: scoped to diff vs main
 }
 ```
 
@@ -18,9 +18,9 @@ The skill detects your branch automatically. No flags, no configuration.
 
 The same skill serves two different needs:
 
-**On `main`** — you're doing a project-wide health check. You want broad coverage, a comprehensive report, and probably a tracking issue.
+**On `main`**: you're doing a project-wide health check. You want broad coverage, a comprehensive report, and probably a tracking issue.
 
-**On a feature branch** — you're working on a specific ticket. You want focused feedback on what you changed, auto-fixes applied, and changes staged for your next commit.
+**On a feature branch**: you're working on a specific ticket. You want focused feedback on what you changed, auto-fixes applied, and changes staged for your next commit.
 
 Forcing the user to choose between these modes is unnecessary friction. The branch already tells you.
 

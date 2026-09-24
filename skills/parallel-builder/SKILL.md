@@ -16,11 +16,11 @@ Orchestrate building many files at once without merge conflicts.
 
 ## How it works
 
-1. **Divide** — split work into independent batches (no shared file edits within a batch)
-2. **Register shared files** — identify files that multiple batches might touch
-3. **Spawn subagents** — one per batch, working on independent files
-4. **Coordinate** — main agent handles shared files after all subagents complete
-5. **Verify** — build + typecheck to catch integration issues
+1. **Divide**: split work into independent batches (no shared file edits within a batch)
+2. **Register shared files**: identify files that multiple batches might touch
+3. **Spawn subagents**: one per batch, working on independent files
+4. **Coordinate**: main agent handles shared files after all subagents complete
+5. **Verify**: build + typecheck to catch integration issues
 
 ## Shared File Registry
 
@@ -41,7 +41,7 @@ Rule: **subagents never edit shared files**. Only the main agent does, after all
 
 | Files to build | Strategy |
 |----------------|----------|
-| 1-2 | Just do it sequentially — no need for parallel |
+| 1-2 | Just do it sequentially: no need for parallel |
 | 3-5 | 2-3 subagents |
 | 6-10 | 3-4 subagents |
 | 10+ | 4-5 subagents max (diminishing returns) |

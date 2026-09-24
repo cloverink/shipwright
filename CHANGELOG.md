@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Review flow rebuilt on the harness that ships real work in production: faster rounds, stable scores, Opus on every verdict.
+
+### Added
+
+- **`code-reviewer` agent** (`agents/code-reviewer.md`, `model: opus`, read-only tools). Every audit, code, UX and docs verdict now comes from it, loaded with a per-job lens. Registered in `plugin.json` under `agents`.
+- **Reviewer Continuity pattern** (`patterns/reviewer-continuity.md`): one named reviewer per gate, continued via `SendMessage` for rounds 2-3, an evidence rule for continued rounds, a fresh escalation reviewer at round 4, then stop.
+- **Findings files**: reviewers append to a `STATUS: RUNNING` file and flip it to `DONE`, so a lost reply or a crashed lens can never read as a green gate.
+- `/review-full --read-only` for a scored peek with no edits.
+- Dev-server precheck in `/review-ux-fix` so the 10/10 gate cannot fail by construction.
+- README diagrams generated with diagram-design (`docs/diagrams/`), light + dark PNGs in `docs/assets/`.
+- CI: validates agents (frontmatter, read-only tools, registration) and README image paths; the README row check now reads the skill count from `plugin.json`.
+
+### Changed
+
+- **`/ship` runs Audit and Review round 1 as one parallel batch** (auditor + reviewer-code + reviewer-ux in one tool call), one commit per round.
+- **`/ship` runs in the main session** instead of delegating the pipeline to one subagent.
+- **Fix loops keep the same reviewer** across rounds 1-3 instead of spawning a fresh one each round. Max rounds: 3 continued + 1 fresh (was 3 fresh).
+- **Suggestions now cost -0.1 each (max -0.5)** instead of 0. Suggestions alone still cannot fail the code gate; when a gate fails, every open finding is fixed.
+- Orchestrating skills (`/ship`, `/review-code-fix`, `/review-ux-fix`, `/review-docs`) moved to `model: sonnet`, since the Opus judgment now lives in the agent.
+- `scripts/link-skills.sh` also links `agents/*` into `~/.claude/agents`.
+
 ## [0.1.1] — 2026-05-28
 
 ### Fixed

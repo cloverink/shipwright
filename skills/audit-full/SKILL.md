@@ -1,70 +1,69 @@
 ---
 name: audit-full
-description: Branch-aware audit orchestrator. On main — scans whole project, opens tracker issue. On feature branch — scopes to diff, auto-fixes, stages changes.
+description: Branch-aware audit. On main, scans the whole project and opens one tracker issue. On a feature branch, audits the diff with an Opus auditor, auto-fixes, and stages. Inside /ship it is the audit lens of the parallel A/R batch.
 model: sonnet
 ---
 
 # /audit-full
 
-Smart audit that changes behavior based on where you are.
+Audit that changes behavior based on where you are. See [Branch-Aware Mode](../../patterns/branch-aware-mode.md).
 
-## Branch-Aware Modes
+## Modes
 
-| Branch | Mode | Behavior |
-|--------|------|----------|
-| `main` | Standalone | Scan whole project → open ONE consolidated GitHub issue |
-| `feat/*`, `fix/*` | In-ticket | Scope to diff vs main → auto-fix → stage changes (no commit) |
+| Where | Mode | Behavior |
+|---|---|---|
+| `main` | Standalone | Scan the whole project → open ONE consolidated GitHub issue |
+| feature branch | In-ticket | Audit the diff vs main → auto-fix → stage (no commit) |
+| inside `/ship` | Lens | `/ship` spawns the auditor next to the reviewers; this file is only the checklist |
 
-The skill detects your branch automatically. No flags needed.
+## Execution
 
-## What it audits
+The audit itself is judged by the read-only [`code-reviewer`](../../agents/code-reviewer.md) agent (Opus) with lens
+`audit`, named `auditor`, writing to a findings file. This session applies the fixes. The auditor never edits.
 
-Orchestrates three audit passes in sequence:
+Large project on `main`? Split by top-level area and spawn one auditor per area **in one tool-call block**.
 
-1. **Config audit** — project configuration health (only runs if config files changed)
-2. **Code audit** — code smells, dead code, magic values, complexity, Big-O
-3. **Test audit** — slow tests, inline mocks, missing edge cases, optimization opportunities
+## Audit checks
 
-<!-- CONFIGURE: Replace with your own audit checks or remove passes you don't need -->
+The `audit` lens checklist. The auditor loads this section.
 
-## Priority System
+1. **Config** (only if config files changed): scripts that point nowhere, duplicate or conflicting settings,
+   secrets in config, CI steps that no longer match the code
+2. **Code**: dead code, unused exports, magic values, duplicated logic, functions over ~50 lines, nesting over 3,
+   accidental O(n²) on unbounded input
+3. **Tests**: slow tests, inline mocks that should be shared fixtures, missing edge cases (empty, error, boundary),
+   tests that assert nothing
 
-Issues found are classified:
+<!-- CONFIGURE: add your own audit checks or remove passes you don't need -->
 
-| Priority | Meaning | Auto-fixed? |
-|----------|---------|-------------|
-| P0 (Critical) | Security, data loss | Yes |
-| P1 (Major) | Bugs, perf regression | Yes |
-| P2 (Warning) | Convention violations | Yes |
-| P3 (Suggestion) | Style, naming nits | **No** — user decides |
+## Priorities
 
-In-ticket mode auto-fixes P0-P2. Standalone mode reports all issues in the tracker issue for human triage.
+| Priority | Meaning | Auto-fixed in-ticket? |
+|---|---|---|
+| P0 Critical | security, data loss | yes |
+| P1 Major | bug, perf regression | yes |
+| P2 Warning | convention violation | yes |
+| P3 Suggestion | style, naming nit | no, listed in the report (inside `/ship`: in the PR body) |
 
-## Standalone Mode (on main)
+## Standalone (on main)
 
-```
-1. Scan full project
-2. Group findings by module/area
-3. Open ONE GitHub issue with all findings
-4. Title: "Audit: <date> — <N> findings across <M> areas"
-```
+1. Spawn auditor(s) over the whole project
+2. Group findings by module
+3. Open ONE GitHub issue: `Audit: <date> · <N> findings across <M> areas`
 
-Why one issue? Avoid GitHub spam. One consolidated tracker is easier to triage than 20 tiny issues.
+One issue, not twenty: one consolidated tracker is easier to triage and does not spam the repo.
 
-## In-Ticket Mode (on feature branch)
+## In-ticket (feature branch)
 
-```
-1. git diff origin/main...HEAD → changed files only
-2. Run audit passes on changed files
-3. Auto-fix P0-P2
-4. Stage fixes (git add) — do NOT commit
-5. Report what was fixed and what needs manual attention
-```
+1. `BASE=$(git merge-base origin/main HEAD)` → changed files only
+2. Spawn the auditor over them
+3. Fix P0-P2 → lint → `git add` (no commit)
+4. Report fixed vs needs-manual-attention
 
-No commit because `/ship` handles commits per-phase. The staged changes become part of Phase A's commit.
+No commit: whoever called this commits per phase. See [Phase Bundling](../../patterns/phase-bundling.md).
 
 ## Usage
 
 ```
-/audit-full              # Auto-detect mode from current branch
+/audit-full              # mode detected from the current branch
 ```

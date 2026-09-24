@@ -19,11 +19,11 @@ Most AI-generated UI converges on the same aesthetic: purple gradients, Inter fo
 
 ## Process
 
-1. **Understand** — what is this page/component for? Who uses it? In what context?
-2. **Direction** — propose 2-3 aesthetic directions (not wireframes — *moods*)
-3. **Commit** — pick one direction and commit to it boldly
-4. **Build** — implement with high craft quality
-5. **Refine** — iterate on details (spacing, transitions, micro-interactions)
+1. **Understand**: what is this page/component for? Who uses it? In what context?
+2. **Direction**: propose 2-3 aesthetic directions (not wireframes, *moods*)
+3. **Commit**: pick one direction and commit to it boldly
+4. **Build**: implement with high craft quality
+5. **Refine**: iterate on details (spacing, transitions, micro-interactions)
 
 ## Anti-patterns (avoid these)
 
@@ -37,11 +37,11 @@ Most AI-generated UI converges on the same aesthetic: purple gradients, Inter fo
 
 ## What good looks like
 
-- **Intentional typography** — weight, spacing, and size serve hierarchy, not decoration
-- **Restrained color** — 1-2 accent colors max, used with purpose
-- **Meaningful motion** — 150-200ms micro-interactions, 500ms transitions
-- **Whitespace as design element** — not filler, but rhythm
-- **One bold choice** — a distinctive layout, an unusual color, a typographic statement
+- **Intentional typography**: weight, spacing, and size serve hierarchy, not decoration
+- **Restrained color**: 1-2 accent colors max, used with purpose
+- **Meaningful motion**: 150-200ms micro-interactions, 500ms transitions
+- **Whitespace as design element**: not filler, but rhythm
+- **One bold choice**: a distinctive layout, an unusual color, a typographic statement
 
 ## Adapting to your project
 
@@ -52,7 +52,7 @@ Design tokens: [your color system, typography, spacing scale]
 Component library: [your shared components]
 ```
 
-The skill works with any stack. The principles are universal — the implementation details are yours.
+The skill works with any stack. The principles are universal: the implementation details are yours.
 
 ## Usage
 

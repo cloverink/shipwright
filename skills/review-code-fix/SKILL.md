@@ -1,78 +1,147 @@
 ---
 name: review-code-fix
-description: Automated code review → fix → re-review loop. Runs until score >9 or max 3 rounds. Fixes Critical/Major/Warnings only — Suggestions are deferred.
-model: opus
+description: Code review → fix → re-review loop until score > 9. One Opus reviewer is kept across rounds 1-3 (continued via SendMessage, no cold start), a fresh Opus reviewer runs round 4 as escalation, then stop. Use for /review-code-fix, or when asked to review code and auto-fix the findings.
+model: sonnet
 ---
 
 # /review-code-fix
 
-Iterative review-fix loop that keeps going until your code passes the quality bar.
+Review → fix → re-review until the code passes **> 9/10**.
 
-> **When to use:** Code-only review when you want to skip auto-scope-detection (backend-only PR, library code).
-> **Use [`/review-full`](../review-full/SKILL.md) instead if:** your diff has frontend changes — it'll dispatch to UX review too.
-> **Called by:** [`/review-full`](../review-full/SKILL.md) (auto-dispatched on code diffs — `/ship` Phase R reaches this transitively).
+> **When to use:** code-only review when you want to skip scope detection (backend-only PR, library code).
+> **Use [`/review-full`](../review-full/SKILL.md) instead if:** the diff touches frontend. It runs UX review alongside.
+> **Called by:** `/review-full`, and `/ship` (this file's §Review focus is the `code` lens checklist).
 
-## How it works
+## Execution: runs in the MAIN session
+
+This session owns **one** read-only [`code-reviewer`](../../agents/code-reviewer.md) agent (Opus) for the whole gate
+and applies the fixes itself. The reviewer never fixes. Do not wrap the loop in a subagent.
+
+Why one reviewer: a fresh reviewer every round cold-starts, forgets what it flagged, and samples new nits, so the
+score oscillates. The same reviewer converges on one bar and re-checks faster. See
+[Reviewer Continuity](../../patterns/reviewer-continuity.md).
+
+## Algorithm
 
 ```
-Round 1: Review → list issues → fix Critical/Major/Warning → re-review
-Round 2: Review again → fix remaining → re-review
-Round 3: Final attempt → fix → final review
-         If still failing → report to user with remaining issues
+MAX_ROUNDS = 4                       // 1-3 same reviewer, 4 = fresh escalation   <!-- CONFIGURE -->
+round = 1
+reviewer = spawn code-reviewer, name "reviewer-code", lens "code"
+
+loop:
+  report = round == 1 ? reviewer's findings file
+         : round <= 3 ? SendMessage("reviewer-code", RE_REVIEW_PROMPT)
+         : round == 4 ? (shut down reviewer; spawn FRESH code-reviewer with round-3 table + fix SHA)
+  score = X from "| **Overall** | **X/10** |" in the findings file
+
+  if score > 9 AND reviewer read the current tree:
+      shut down reviewer → report → stop
+  if round == MAX_ROUNDS:
+      shut down reviewer → report remaining findings → stop (FAIL)
+
+  show round table to the user           // every round, before fixing
+  fix ALL open findings (Critical, Major, Warning, Suggestion)
+  lint + typecheck
+  commit (standalone) or stage (bundled) → record SHA
+  round += 1
 ```
 
-## Score Gate
+## Step 1: Spawn the reviewer
 
-The pass threshold is **strictly greater than 9**:
+Compute scope once and pass it in. The reviewer must not re-derive it.
+
+```bash
+BASE=$(git merge-base origin/main HEAD) || { echo "cannot resolve origin/main: git fetch first"; exit 1; }
+CHANGED=$(git diff --name-only "$BASE"; git ls-files --others --exclude-standard)
+RUN_DIR="${TMPDIR:-/tmp}/shipwright/$(git branch --show-current | tr / -)-$(date +%s)"
+mkdir -p "$RUN_DIR" && printf 'STATUS: RUNNING\n' > "$RUN_DIR/code.md"
+```
+
+```
+Agent({
+  subagent_type: "code-reviewer",          // "shipwright:code-reviewer" when installed as a plugin
+  name: "reviewer-code",
+  prompt: "Lens: code. Checklist: /review-code-fix §Review focus.
+           Changed files (read each END-TO-END): <CHANGED>. Diff base: <BASE>.
+           Findings file: <RUN_DIR>/code.md: append, flip line 1 to STATUS: DONE, reply with path + verdict only."
+})
+```
+
+## Step 2: Re-review prompt (rounds 2-3)
+
+Paste the real post-fix `git diff $BASE --stat`:
+
+> Findings 1-N were addressed in commit `<sha>`; post-fix stat: `<stat>`. Your context still holds the PRE-fix files.
+> Re-Read EVERY changed file end-to-end now. For each finding you mark resolved, QUOTE the post-fix line(s). List every
+> file you re-read with its line count. Name at least one thing you checked that was NOT a prior finding. Re-score
+> from scratch. Append to `<findings file>` as `round <N>`.
+
+No quoted lines, no re-read list, or no regression-hunt note → **not a pass**. Ask once for a redo, else spawn fresh.
+Reviewer unreachable → spawn fresh with the previous table + SHA, and mark the round "ran fresh".
+
+## Score gate
 
 | Score | Result |
-|-------|--------|
-| 10 | Pass |
-| 9.5 | Pass |
-| 9.0 | **Fail** |
-| 8.5 | Fail |
+|---|---|
+| 10 | Pass, clean |
+| 9.5 – 9.9 | Pass. Leftover Suggestions go to the PR body |
+| 9.0 – 9.4 | **Fail** |
+| < 9 | Fail |
 
-A 9.0 means at least one Major issue or two Warnings remain. That's not ship-ready.
+<!-- CONFIGURE: threshold -->
 
-<!-- CONFIGURE: Adjust the threshold to match your quality bar -->
+| Severity | Deduction |
+|---|---|
+| Critical | -3 (security, data loss, broken build) |
+| Major | -1 (bug, perf regression, missing test) |
+| Warning | -0.5 each, max -2 (convention violation) |
+| Suggestion | -0.1 each, max -0.5 (naming nit, readability) |
 
-## Severity Levels
+Rationale in [Score Gates](../../patterns/score-gates.md).
 
-| Severity | Score impact | Auto-fixed? |
-|----------|-------------|-------------|
-| Critical (-3) | Security, data loss, broken build | Yes |
-| Major (-1) | Bug, perf regression, missing tests | Yes |
-| Warning (-0.5, max -2) | Convention violations | Yes |
-| Suggestion (0) | Style preference, naming nits | **No** |
+## Review focus
 
-## Fix Strategy
+The `code` lens checklist. The reviewer loads this section.
 
-Fixes are applied by scope to avoid conflicts:
-1. Group issues by file/directory
-2. Fix each group
-3. Run lint + typecheck after each batch
-4. Re-review only after all fixes pass
+1. **Correctness**: logic errors, off-by-one, unhandled promise, race conditions, wrong null handling
+2. **Security**: secrets in code, missing input validation, injection, authz checks on every new endpoint
+3. **Type safety**: no `any`, explicit return types on exports, narrowing instead of casts
+4. **Performance**: N+1 queries, missing indexes, unbounded loops or payloads, bundle size
+5. **Testing**: every changed code path has a test; edge cases (empty, error, boundary)
+6. **Conventions**: naming, imports, file organization, error messages that help the user
 
-<!-- CONFIGURE: Replace with your lint/typecheck commands -->
+<!-- CONFIGURE: add project-specific review items or point at your rules file -->
 
-## Review Focus
+## Round table (show every round)
 
-1. **Type safety** — no `any`, proper null handling, explicit returns
-2. **Security** — no secrets, input validation, injection prevention
-3. **Performance** — N+1 queries, missing indexes, bundle size
-4. **Testing** — coverage on changed code paths
-5. **Conventions** — naming, imports, file organization
+```markdown
+## Round 2 · 8.5/10 · fixing 3
 
-<!-- CONFIGURE: Add project-specific review items -->
-
-## Output Format
-
+| # | Severity | File:Line | Issue | Fix plan |
+|---|---|---|---|---|
+| 1 | Major | src/api/users.ts:42 | ... | ... |
 ```
-Summary: 1-3 sentences
-Issues:
-  - [Critical] [file:line] description
-  - [Major] [file:line] description
-  - [Warning] [file:line] description
-  - [Suggestion] [file:line] description (not auto-fixed)
-Score: X/10
+
+## Final report
+
+```markdown
+## Code Review Fix Report
+
+| Round | Reviewer | Score | Fixed |
+|---|---|---|---|
+| 1 | reviewer-code | 7.5 | 1 major, 3 warnings |
+| 2 | reviewer-code (continued) | 9.5 | 1 warning |
+
+Result: ✅ passes > 9 · or · ❌ still failing after round 4, remaining findings below
 ```
+
+## Bundling
+
+Standalone: commit each round as `fix(<scope>): review fixes (round N)`. Called from `/review-full` or `/ship`: stage
+only, the parent commits. See [Phase Bundling](../../patterns/phase-bundling.md).
+
+## Guidelines
+
+- **Never push.** Run `/push` or `/ship` afterwards.
+- **Never auto-fix DB migrations.** Flag them: "Schema change required, fix manually".
+- **Same finding two rounds running** → mark it "requires manual fix" instead of looping on it.

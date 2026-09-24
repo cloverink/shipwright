@@ -4,17 +4,17 @@ How sub-skills suppress commits when called from an orchestrator.
 
 ## The Problem
 
-`/ship` calls `/audit-full`, `/review-code-fix`, and other skills sequentially. If each skill auto-commits its changes, you get:
+`/ship` calls `/audit-full`, `/review-code-fix`, and other skills. If each skill auto-commits its changes, you get:
 
 ```
-abc1234 refactor(api): audit — dead code
-def5678 refactor(api): audit — naming convention
-ghi9012 fix(www): review — error boundary
-jkl3456 fix(www): review — responsive layout
+abc1234 refactor(api): audit: dead code
+def5678 refactor(api): audit: naming convention
+ghi9012 fix(www): review: error boundary
+jkl3456 fix(www): review: responsive layout
 mno7890 docs(api): update API docs
 ```
 
-Five commits for what should be three (one per phase).
+Five commits for what should be three (one per phase or fix round).
 
 ## The Solution
 
@@ -25,13 +25,16 @@ When called standalone:  fix → commit → done
 When called from /ship:  fix → stage → return (let parent commit)
 ```
 
-The parent (`/ship`) then creates one commit per phase:
+The parent (`/ship`) then creates one commit per fix round:
 
 ```
-abc1234 refactor(api): audit fixes — dead code + naming
-def5678 fix(www): review fixes — error boundary + responsive
+abc1234 refactor(api): audit + review fixes (A/R round 1)
+def5678 fix(www): review fixes (round 2)
 ghi9012 docs(api): sync documentation
 ```
+
+Round commits matter for [Reviewer Continuity](reviewer-continuity.md): the re-review prompt tells the same reviewer
+"findings 1-N were addressed in commit `<sha>`", so every round needs its own SHA.
 
 ## How to Implement
 
@@ -55,7 +58,7 @@ The orchestrating skill (`/ship`) passes context that tells the sub-skill which 
 
 ## Why This Matters
 
-1. **Clean git history** — one commit per phase, not one per file
-2. **Atomic phases** — if Phase R fails, Phase A's commit is already clean
-3. **Readable `git log`** — each commit explains a phase, not a micro-fix
-4. **Easy revert** — revert one phase without touching others
+1. **Clean git history**: one commit per round, not one per file
+2. **Atomic phases**: if Phase R fails, Phase A's commit is already clean
+3. **Readable `git log`**: each commit explains a phase, not a micro-fix
+4. **Easy revert**: revert one phase without touching others

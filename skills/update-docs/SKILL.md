@@ -15,7 +15,7 @@ Keep documentation in sync with code. Detects what changed, updates the right ti
 2. Classify        → categorize files into doc tiers
 3. Update          → edit relevant docs per tier
 4. Verify stats    → run stats tools, refresh counts
-5. Stage           → git add (no commit — let parent commit per-phase)
+5. Stage           → git add (no commit, the parent commits per phase)
 ```
 
 ## Bundling behavior
@@ -23,7 +23,8 @@ Keep documentation in sync with code. Detects what changed, updates the right ti
 When called from `/ship` (Phase D):
 - Apply doc updates
 - Stage changes (`git add`)
-- Do NOT commit — let `/ship` commit as `docs(<scope>): sync documentation`
+- Do NOT commit; `/ship` commits as `docs(<scope>): sync documentation`
+- Cover everything that ships: the original work **and** every A/R fix round
 - Return summary of what was updated
 
 When called standalone:
@@ -54,10 +55,10 @@ git diff --name-only HEAD  # also include unstaged
 
 ## Phase 3: Stats Verification
 
-If your project has a stats sync tool, run it first — it's the single source of truth for counts in README/CLAUDE.md.
+If your project has a stats sync tool, run it first: it's the single source of truth for counts in README/CLAUDE.md.
 
 ```bash
-# Example — replace with your project's tool
+# Example: replace with your project's tool
 bun run tools/stats-sync.ts --update    # writes diffs into core docs
 bun run tools/stats-sync.ts             # check-only mode for CI
 ```
@@ -67,7 +68,7 @@ bun run tools/stats-sync.ts             # check-only mode for CI
 If no automated tool, verify common counts manually:
 
 ```bash
-# Components, endpoints, tests — adjust globs to your structure
+# Components, endpoints, tests: adjust globs to your structure
 find src/components -name "*.tsx" | wc -l
 grep -rcE "@(Get|Post|Patch|Delete|Put)\(" --include="*.ts" src/api/
 ```
@@ -95,21 +96,21 @@ git add README.md CLAUDE.md docs/ .claude/
 Report format:
 
 ```
-Documentation Update — Summary
+Documentation Update Summary
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Scope: <auto-detected files>
-Updated:   path/to/doc.md — what changed
+Updated:   path/to/doc.md: what changed
 Verified:  Components: X | Tests: X | Endpoints: X
-Skipped:   path/to/doc.md — already up to date
-Manual:    path/to/doc.md — needs human review (reason)
+Skipped:   path/to/doc.md: already up to date
+Manual:    path/to/doc.md: needs human review (reason)
 ```
 
 ## Guidelines
 
-- **Concise** — lead with the answer, not the context
-- **Scannable** — tables, bullet lists, headers
-- **Cross-reference, don't duplicate** — link to related docs
-- **Match code reality** — every code example, path, count must match the current code
+- **Concise**: lead with the answer, not the context
+- **Scannable**: tables, bullet lists, headers
+- **Cross-reference, don't duplicate**: link to related docs
+- **Match code reality**: every code example, path, count must match the current code
 - **Stage everything, commit nothing** when called from `/ship`
 
 ## Exit conditions

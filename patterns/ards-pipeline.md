@@ -1,64 +1,69 @@
 # A→R→D→S Pipeline
 
-The core pattern behind `/ship`. Four sequential phases, each with a gate that must pass before the next phase runs.
+The core pattern behind `/ship`. Four phases, each with a gate that must pass before the next phase runs.
+Audit and Review share a first round, so the slowest part of the pipeline runs in parallel.
 
 ## The Phases
 
 ```
-A (Audit)    → Find and auto-fix code quality issues
-R (Review)   → Code review + UX review with fix loops
-D (Docs)     → Sync documentation with code changes
-S (Ship)     → Push branch + open PR
+A+R (Audit + Review)  → one parallel batch of read-only Opus lenses → union findings → fix → commit
+R   (Review rounds)   → same reviewers re-check the fixes until the gates pass
+D   (Docs)            → sync documentation with the code that is about to ship
+S   (Ship)            → push branch + open PR
 ```
 
 ## Why this order?
 
-**Audit before Review** — Audit catches mechanical issues (dead code, convention violations, missing imports) that would clutter a code review. Fix them first so the reviewer focuses on logic, architecture, and design.
+**Audit and Review together, then Review alone.** Audit (dead code, magic values, slow tests) and Review
+(correctness, security, UX) both read the same diff and neither writes. Running them one after the other doubled
+the wall-clock for no gain, so round 1 is **one batch**: every lens is spawned in the same tool-call block, the
+findings are unioned, and one commit fixes them all. Rounds 2+ are review-only.
 
-**Review before Docs** — Review may change code. Don't write docs for code that's about to change.
+**Review before Docs.** Review may change code. Do not write docs for code that is about to change.
 
-**Docs before Ship** — Docs are part of the deliverable. A PR without updated docs is incomplete.
+**Docs before Ship.** Docs are part of the deliverable. A PR without updated docs is incomplete.
 
-**Ship last** — Everything else must pass before the work leaves your machine.
+**Ship last.** Everything else must pass before the work leaves your machine.
 
 ## Gate Enforcement
 
 Each phase has a gate. If the gate fails, the pipeline **stops and reports**. It never silently skips a failed phase.
 
 | Phase | Gate | What blocks |
-|-------|------|-------------|
-| A | Auto-fixes applied cleanly | Unfixable Critical issues |
-| R | Code >9, UX 10/10 | Score below threshold after 3 rounds |
-| D | No stale references | Dead links, outdated stats |
+|---|---|---|
+| A+R round 1 | Every lens reported | A lens that crashed or was skipped means that dimension was never reviewed: re-run it, never report green |
+| R | Code > 9, UX = 10/10 | Still failing after round 4 (the fresh escalation reviewer) |
+| D | Docs accurate (binary) | Dead links, stale stats after 2 rounds |
 | S | Clean working tree | Uncommitted changes |
+
+## Who does what
+
+| Role | Who | Writes files? |
+|---|---|---|
+| Orchestrator | the **main session** running `/ship` | commits only |
+| Reviewers / auditors | `code-reviewer` agent (Opus), one per lens | never |
+| Fixer | the main session (or one Sonnet worker per file) | yes, one writer per file |
+
+The main session drives the pipeline directly. It does **not** hand the whole pipeline to one subagent: that shape is
+serial, reviews its own fixes, and cannot keep a reviewer alive across rounds. See
+[Reviewer Continuity](reviewer-continuity.md).
 
 ## Per-Phase Commits
 
-Each phase produces its own commit. This keeps `git log` readable:
-
 ```
-refactor(backend): audit fixes — remove dead code, fix N+1 query
-fix(frontend): review fixes — add error boundary, fix responsive layout
-docs(api): sync module documentation
+refactor(api): audit + review fixes (A/R round 1)
+fix(api): review fixes (round 2)
+docs(api): sync documentation
 ```
 
-The alternative — one giant commit — makes it impossible to understand what changed and why.
-
-## Subagent Strategy
-
-`/ship` spawns a subagent for the A→R→D→S work. Why?
-
-1. **Context freshness** — the subagent starts with a clean context, not polluted by hours of coding
-2. **Isolation** — if the pipeline fails midway, the main session's context isn't consumed
-3. **Resumability** — the main session can report status and re-run if needed
+Each round gets its own commit so the re-review prompt can point at a SHA, and `git log` stays readable. A phase
+that came back clean gets no empty commit; the PR body says "Phase X came back clean" instead.
 
 ## Adapting the Pipeline
 
-The pipeline is modular. Common adaptations:
-
-- **No frontend?** Remove UX review from Phase R
-- **No docs?** Remove Phase D entirely
-- **Custom audit?** Replace Phase A with your own audit skill
-- **Different thresholds?** Adjust the score gates in each skill
+- **No frontend?** The UX lens is skipped automatically when no frontend path changed
+- **No docs?** Remove Phase D
+- **Custom audit?** Point the audit lens at your own checklist
+- **Different thresholds?** Adjust the score gates (see [Score Gates](score-gates.md))
 
 The phases are conventions, not constraints. Use what works for your project.

@@ -1,7 +1,7 @@
 ---
 name: review-docs
-description: Verify Phase D doc updates are accurate. Binary pass/fail gate — checks stat accuracy, file path validity, code-doc sync, completeness. Runs after /update-docs.
-model: opus
+description: Verify Phase D doc updates are accurate. Binary pass/fail gate judged by an Opus reviewer (stats, links, code-doc sync, completeness), same reviewer for both rounds. Runs after /update-docs.
+model: sonnet
 ---
 
 # /review-docs
@@ -9,14 +9,19 @@ model: opus
 Quality gate for documentation. Catches stale stats, dead links, and drift between code and docs.
 
 > **When to use:** Verify doc accuracy after [`/update-docs`](../update-docs/SKILL.md), or as a standalone doc audit.
-> **Use [`/review-full`](../review-full/SKILL.md) instead if:** your diff is mixed (code + docs) — it'll detect scope and dispatch.
+> **Use [`/review-full`](../review-full/SKILL.md) instead if:** your diff is mixed (code + docs): it'll detect scope and dispatch.
 > **Called by:** `/ship` Phase D (after [`/update-docs`](../update-docs/SKILL.md)), [`/review-full`](../review-full/SKILL.md) (docs-only diffs).
 
-## Why opus?
+## Execution: Opus judges, this session fixes
 
-Docs are a trust surface. Sonnet misses cross-file inconsistencies (e.g., README says "30 modules" but `modules/` has 32 files). Opus catches these.
+Docs are a trust surface. Sonnet misses cross-file inconsistencies (README says "30 modules" but `modules/` has 32
+files), so the verdict comes from the read-only [`code-reviewer`](../../agents/code-reviewer.md) agent (Opus), lens
+`docs`, named `reviewer-docs`. This session runs the automated checks, applies fixes and re-stages.
 
-<!-- CONFIGURE: Downgrade to sonnet if your docs are simple or stats aren't tracked -->
+Round 2 continues the **same** reviewer via `SendMessage` with the evidence rule from
+[Reviewer Continuity](../../patterns/reviewer-continuity.md). No round 3: still failing → stop and report.
+
+<!-- CONFIGURE: skip the reviewer spawn and rely on Step 3 tools alone if your docs are simple -->
 
 ## When to run
 
@@ -24,18 +29,19 @@ Docs are a trust surface. Sonnet misses cross-file inconsistencies (e.g., README
 Phase D pipeline:
   /update-docs  → stage doc changes
   /review-docs  → verify them    ← you are here
-  (if fail)     → fix in-place, re-stage, re-review (max 2 rounds)
+  (if fail)     → fix in-place, re-stage, same reviewer re-checks (max 2 rounds)
   (if pass)     → continue to Phase S (ship)
 ```
 
-Always run after `/update-docs` — even if it reports "came back clean." Verify the claim.
+Always run after `/update-docs`, even if it reports "came back clean". Verify the claim with Step 3's tools; spawn
+the reviewer only when there is a staged doc diff or a tool reports drift.
 
 ## Bundling behavior
 
 When called from `/ship`:
 - Read-only review of staged doc changes
 - If issues found: fix in-place, re-stage, re-review
-- Do NOT commit — `/ship` commits per phase
+- Do NOT commit: `/ship` commits per phase
 
 ## Step 1: Gather doc changes
 
@@ -44,7 +50,7 @@ git diff --cached --stat -- '*.md'
 git diff --cached -- '*.md'
 ```
 
-If no staged doc changes AND `/update-docs` reported "clean" → report "Phase D clean — no doc changes to review" and pass.
+If no staged doc changes AND `/update-docs` reported "clean" → report "Phase D clean: no doc changes to review" and pass.
 
 ## Step 2: Review focus areas
 
@@ -64,7 +70,7 @@ If no staged doc changes AND `/update-docs` reported "clean" → report "Phase D
 Run any doc-drift tools your project has:
 
 ```bash
-# Example — replace with your project's tools
+# Example: replace with your project's tools
 bun run tools/doc-drift.ts        # dead file refs + stale dates
 bun run tools/stats-sync.ts       # stat accuracy (check-only mode)
 ```
@@ -89,14 +95,14 @@ Binary pass/fail. No numeric score.
 | Result | Meaning |
 |--------|---------|
 | Pass | All docs accurate, no stale references, stats match reality |
-| Fail | One or more issues found — list per issue with file path |
+| Fail | One or more issues found: list per issue with file path |
 
-Why binary? Either docs are accurate or they're not. "Mostly accurate" docs are a trap — users trust them, then hit the inaccurate part.
+Why binary? Either docs are accurate or they're not. "Mostly accurate" docs are a trap: users trust them, then hit the inaccurate part.
 
 ## Step 5: Report
 
 ```markdown
-## Review Docs — Report
+## Review Docs Report
 
 Files reviewed: X docs changed
 Tiers covered: 1 (core) / 2 (arch) / 3 (journey) / 4 (config)
@@ -117,11 +123,11 @@ Ready for Phase S: Yes / No
 
 ## Guidelines
 
-- **Binary pass/fail** — no numeric score
-- **Scope to doc diff only** — don't review impl code (that's Phase R's job)
-- **Fix in-place** — if issues found, fix immediately, re-stage, re-review
-- **Reviewer is read-only** — agent reports, never edits in review pass
-- **Max 2 fix rounds** — if still failing after 2 rounds, flag to user
+- **Binary pass/fail**: no numeric score
+- **Scope to doc diff only**: don't review impl code (that's Phase R's job)
+- **Fix in-place**: if issues found, fix immediately, re-stage, re-review
+- **Reviewer is read-only**: the agent reports, this session edits
+- **Max 2 rounds, same reviewer**: still failing after round 2 → flag to user
 
 ## Exit conditions
 

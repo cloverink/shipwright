@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Opus judges, Sonnet builds</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #2d3142; }
+    svg { display: block; width: 1240px; }
+  </style>
+</head>
+<body>
+<svg viewBox="0 0 1240 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="roles-dark-title roles-dark-desc">
+    <title id="roles-dark-title">Opus judges, Sonnet builds</title>
+    <desc id="roles-dark-desc">The Sonnet main session spawns and continues read-only Opus reviewer agents, reads their verdicts from a findings file, applies fixes, and opens the pull request.</desc>
+    <defs><marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bfc0c0"/></marker><marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#f08a59"/></marker></defs>
+    <rect width="100%" height="100%" fill="#2d3142"/>
+    <rect x="684" y="24" width="304" height="304" rx="8" fill="rgba(245,245,245,0.02)" stroke="rgba(245,245,245,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="700" y="44" fill="#8e98ac" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">CODE-REVIEWER AGENT · READ-ONLY</text>
+    <line x1="160" y1="136" x2="224" y2="136" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <line x1="464" y1="128" x2="700" y2="128" stroke="#f08a59" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+    <rect x="518" y="108" width="128" height="12" rx="2" fill="#2d3142"/>
+    <text x="582" y="117" fill="#f08a59" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">SPAWN · SENDMESSAGE</text>
+    <line x1="700" y1="184" x2="468" y2="184" stroke="#bfc0c0" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+    <rect x="538" y="164" width="92" height="12" rx="2" fill="#2d3142"/>
+    <text x="584" y="173" fill="#8e98ac" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">FINDINGS FILE</text>
+    <line x1="344" y1="200" x2="344" y2="264" stroke="#bfc0c0" stroke-width="1.2" marker-end="url(#arrow)"/>
+    <rect x="40" y="112" width="120" height="48" rx="24" fill="#2d3142"/>
+    <rect x="40" y="112" width="120" height="48" rx="24" fill="rgba(245,245,245,0.03)" stroke="rgba(245,245,245,0.30)" stroke-width="1"/>
+    <text x="100.0" y="133.5" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">You</text>
+    <text x="100.0" y="148.5" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">/ship</text>
+    <rect x="224" y="88" width="240" height="112" rx="6" fill="#2d3142"/>
+    <rect x="224" y="88" width="240" height="112" rx="6" fill="#393e53" stroke="#f5f5f5" stroke-width="1"/>
+    <rect x="232" y="94" width="48" height="12" rx="2" fill="transparent" stroke="#8e98ac" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="256.0" y="103" fill="#8e98ac" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">SONNET</text>
+    <text x="344.0" y="140.0" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Main session</text>
+    <text x="344.0" y="155.0" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">orchestrates · fixes</text>
+    <text x="344.0" y="168.0" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">lint · commits · push</text>
+    <rect x="708" y="56" width="256" height="52" rx="6" fill="#2d3142"/>
+    <rect x="708" y="56" width="256" height="52" rx="6" fill="#393e53" stroke="rgba(106,149,216,0.95)" stroke-width="1"/>
+    <rect x="716" y="62" width="36" height="12" rx="2" fill="transparent" stroke="rgba(106,149,216,0.95)" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="734.0" y="71" fill="rgba(106,149,216,0.95)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">OPUS</text>
+    <text x="836.0" y="84.5" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">auditor</text>
+    <text x="836.0" y="99.5" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">lens: audit</text>
+    <rect x="708" y="120" width="256" height="52" rx="6" fill="#2d3142"/>
+    <rect x="708" y="120" width="256" height="52" rx="6" fill="#393e53" stroke="rgba(106,149,216,0.95)" stroke-width="1"/>
+    <rect x="716" y="126" width="36" height="12" rx="2" fill="transparent" stroke="rgba(106,149,216,0.95)" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="734.0" y="135" fill="rgba(106,149,216,0.95)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">OPUS</text>
+    <text x="836.0" y="148.5" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">reviewer-code</text>
+    <text x="836.0" y="163.5" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">lens: code</text>
+    <rect x="708" y="184" width="256" height="52" rx="6" fill="#2d3142"/>
+    <rect x="708" y="184" width="256" height="52" rx="6" fill="#393e53" stroke="rgba(106,149,216,0.95)" stroke-width="1"/>
+    <rect x="716" y="190" width="36" height="12" rx="2" fill="transparent" stroke="rgba(106,149,216,0.95)" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="734.0" y="199" fill="rgba(106,149,216,0.95)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">OPUS</text>
+    <text x="836.0" y="212.5" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">reviewer-ux</text>
+    <text x="836.0" y="227.5" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">lens: ux</text>
+    <rect x="708" y="248" width="256" height="52" rx="6" fill="#2d3142"/>
+    <rect x="708" y="248" width="256" height="52" rx="6" fill="#393e53" stroke="rgba(106,149,216,0.95)" stroke-width="1"/>
+    <rect x="716" y="254" width="36" height="12" rx="2" fill="transparent" stroke="rgba(106,149,216,0.95)" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="734.0" y="263" fill="rgba(106,149,216,0.95)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">OPUS</text>
+    <text x="836.0" y="276.5" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">reviewer-docs</text>
+    <text x="836.0" y="291.5" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">lens: docs</text>
+    <rect x="264" y="264" width="160" height="48" rx="24" fill="#2d3142"/>
+    <rect x="264" y="264" width="160" height="48" rx="24" fill="rgba(240,138,89,0.10)" stroke="#f08a59" stroke-width="1"/>
+    <text x="344.0" y="285.5" fill="#f5f5f5" font-size="12" font-weight="600" font-family="'Geist', system-ui, sans-serif" text-anchor="middle">Pull request</text>
+    <text x="344.0" y="300.5" fill="#bfc0c0" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">human reviews</text>
+    <text x="1012" y="116" fill="#f5f5f5" font-size="15" font-style="italic" font-family="'Instrument Serif', Georgia, serif" text-anchor="start">Reviewers never write.</text>
+    <text x="1012" y="136" fill="#f5f5f5" font-size="15" font-style="italic" font-family="'Instrument Serif', Georgia, serif" text-anchor="start">The session that fixes</text>
+    <text x="1012" y="156" fill="#f5f5f5" font-size="15" font-style="italic" font-family="'Instrument Serif', Georgia, serif" text-anchor="start">is never the one</text>
+    <text x="1012" y="176" fill="#f5f5f5" font-size="15" font-style="italic" font-family="'Instrument Serif', Georgia, serif" text-anchor="start">that grades.</text>
+    <line x1="32" y1="352" x2="1208" y2="352" stroke="rgba(245,245,245,0.12)" stroke-width="0.8"/>
+    <text x="32" y="376" fill="#bfc0c0" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.18em">LEGEND</text>
+    <rect x="108" y="368" width="36" height="12" rx="2" fill="transparent" stroke="rgba(106,149,216,0.95)" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="126.0" y="377" fill="rgba(106,149,216,0.95)" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">OPUS</text>
+    <text x="156" y="377" fill="#bfc0c0" font-size="9" font-family="'Geist', system-ui, sans-serif">judges (read-only)</text>
+    <rect x="286" y="368" width="48" height="12" rx="2" fill="transparent" stroke="#8e98ac" stroke-opacity="0.55" stroke-width="0.8"/>
+    <text x="310.0" y="377" fill="#8e98ac" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.08em">SONNET</text>
+    <text x="346" y="377" fill="#bfc0c0" font-size="9" font-family="'Geist', system-ui, sans-serif">builds (writes)</text>
+    <line x1="461" y1="374" x2="489" y2="374" stroke="#f08a59" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+    <text x="497" y="377" fill="#bfc0c0" font-size="9" font-family="'Geist', system-ui, sans-serif">work handed out</text>
+    <line x1="612" y1="374" x2="640" y2="374" stroke="#bfc0c0" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+    <text x="648" y="377" fill="#bfc0c0" font-size="9" font-family="'Geist', system-ui, sans-serif">verdict returned</text>
+</svg>
+</body>
+</html>

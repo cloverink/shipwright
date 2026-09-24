@@ -27,7 +27,7 @@ labels: enhancement
 
 ## Model recommendation
 
-<!-- opus / sonnet / haiku — and why (depth of reasoning required) -->
+<!-- opus / sonnet / haiku: and why (depth of reasoning required) -->
 
 ## Related patterns
 

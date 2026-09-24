@@ -65,7 +65,7 @@ jobs:
       - name: Verify skill count parity
         run: |
           plugin_count=$(jq '.skills | length' .claude-plugin/plugin.json)
-          file_count=$(find skills -mindepth 2 -name SKILL.md | wc -l)
+          file_count=$(find skills -mindepth 2 -name SKILL.md | wc -l | tr -d " ")
 
           if [ "$plugin_count" != "$file_count" ]; then
             echo "::error::plugin.json lists $plugin_count skills but found $file_count SKILL.md files"
@@ -84,12 +84,60 @@ jobs:
           fi
           echo "✓ No stale bucket paths"
 
+      - name: Validate agents
+        run: |
+          python3 << 'PY'
+          import json, re, sys
+          from pathlib import Path
+
+          errors = []
+          declared = json.loads(Path(".claude-plugin/plugin.json").read_text()).get("agents", [])
+          for path in declared:
+              f = Path(path)
+              if not f.is_file():
+                  errors.append(f"{path}: referenced in plugin.json but missing")
+                  continue
+              m = re.match(r"^---\n(.*?)\n---", f.read_text(encoding="utf-8"), re.DOTALL)
+              if not m:
+                  errors.append(f"{path}: missing or malformed YAML frontmatter")
+                  continue
+              fm = m.group(1)
+              for field in ("name", "description", "tools", "model"):
+                  if not re.search(rf"^{field}:", fm, re.MULTILINE):
+                      errors.append(f"{path}: missing '{field}' field")
+              tools = re.search(r"^tools:\s*(.+)$", fm, re.MULTILINE)
+              if tools and re.search(r"\b(Edit|Write|NotebookEdit)\b", tools.group(1)):
+                  errors.append(f"{path}: reviewer agents must be read-only (no Edit/Write)")
+
+          on_disk = {f"./{p}" for p in map(str, Path("agents").glob("*.md"))}
+          for missing in sorted(on_disk - set(declared)):
+              errors.append(f"{missing}: agent file not registered in plugin.json")
+
+          if errors:
+              for e in errors:
+                  print(f"::error::{e}")
+              sys.exit(1)
+          print(f"✓ {len(declared)} agent(s) valid and read-only")
+          PY
+
       - name: Verify README skills table
         run: |
-          # Count rows in the unified Skills table — should equal 12
+          expected=$(jq '.skills | length' .claude-plugin/plugin.json)
           readme_count=$(grep -cE '^\| \[`/' README.md || echo 0)
-          if [ "$readme_count" -ne 12 ]; then
-            echo "::error::README Skills table has $readme_count rows (expected 12)"
+          if [ "$readme_count" -ne "$expected" ]; then
+            echo "::error::README Skills table has $readme_count rows (expected $expected)"
             exit 1
           fi
-          echo "✓ README Skills table has 12 rows"
+          echo "✓ README Skills table has $expected rows"
+
+      - name: Verify README diagrams exist
+        run: |
+          errors=0
+          while IFS= read -r img; do
+            if [ ! -f "$img" ]; then
+              echo "::error::README references missing image $img"
+              errors=$((errors + 1))
+            fi
+          done < <(grep -oE 'docs/assets/[A-Za-z0-9._-]+\.(png|svg)' README.md | sort -u)
+          [ "$errors" -eq 0 ] && echo "✓ All README images exist"
+          exit "$errors"
