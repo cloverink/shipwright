@@ -199,7 +199,7 @@ def pipeline(p, slug):
     s.node(244, 200, 200, 56, "reviewer-code", "lens: code", tag=("OPUS", "opus"), kind="opus")
     s.node(244, 272, 200, 56, "reviewer-ux", "lens: ux · if frontend", tag=("OPUS", "opus"), kind="opus")
     s.node(520, 196, 160, 64, "Fix + commit", "union findings", tag=("SONNET", "soft"))
-    s.diamond(792, 228, 76, 52, "Gates pass?", "code >9 · UX 10")
+    s.diamond(792, 228, 76, 52, "Gates pass?", "code ≥9.5 · UX 10")
     s.node(916, 200, 124, 56, "Phase D", "docs sync + gate", tag=("SONNET", "soft"))
     s.node(1076, 200, 132, 56, "Pull request", "Phase S · /push", rx=28, kind="focal")
     s.node(732, 72, 120, 48, "Stop + report", "never loops forever", rx=24, kind="stop")

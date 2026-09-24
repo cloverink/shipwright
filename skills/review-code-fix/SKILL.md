@@ -1,12 +1,12 @@
 ---
 name: review-code-fix
-description: Code review → fix → re-review loop until score > 9. One Opus reviewer is kept across rounds 1-3 (continued via SendMessage, no cold start), a fresh Opus reviewer runs round 4 as escalation, then stop. Use for /review-code-fix, or when asked to review code and auto-fix the findings.
+description: Code review → fix → re-review loop until score ≥ 9.5. One Opus reviewer is kept across rounds 1-3 (continued via SendMessage, no cold start), a fresh Opus reviewer runs round 4 as escalation, then stop. Use for /review-code-fix, or when asked to review code and auto-fix the findings.
 model: sonnet
 ---
 
 # /review-code-fix
 
-Review → fix → re-review until the code passes **> 9/10**.
+Review → fix → re-review until the code passes **≥ 9.5/10**.
 
 > **When to use:** code-only review when you want to skip scope detection (backend-only PR, library code).
 > **Use [`/review-full`](../review-full/SKILL.md) instead if:** the diff touches frontend. It runs UX review alongside.
@@ -31,13 +31,13 @@ reviewer = spawn code-reviewer, name "reviewer-code", lens "code"
 loop:
   report = round == 1 ? reviewer's findings file
          : round <= 3 ? SendMessage("reviewer-code", RE_REVIEW_PROMPT)
-         : round == 4 ? (shut down reviewer; spawn FRESH code-reviewer with round-3 table + fix SHA)
+         : round == 4 ? (release reviewer; spawn FRESH code-reviewer with round-3 table + fix SHA)
   score = X from "| **Overall** | **X/10** |" in the findings file
 
-  if score > 9 AND reviewer read the current tree:
-      shut down reviewer → report → stop
+  if score >= 9.5 AND reviewer read the current tree:
+      release reviewer (stop messaging it) → report → stop
   if round == MAX_ROUNDS:
-      shut down reviewer → report remaining findings → stop (FAIL)
+      release reviewer (stop messaging it) → report remaining findings → stop (FAIL)
 
   show round table to the user           // every round, before fixing
   fix ALL open findings (Critical, Major, Warning, Suggestion)
@@ -137,7 +137,7 @@ The `code` lens checklist. The reviewer loads this section.
 | 1 | reviewer-code | 7.5 | 1 major, 3 warnings |
 | 2 | reviewer-code (continued) | 9.5 | 1 warning |
 
-Result: ✅ passes > 9 · or · ❌ still failing after round 4, remaining findings below
+Result: ✅ passes ≥ 9.5 · or · ❌ still failing after round 4, remaining findings below
 ```
 
 ## Commits

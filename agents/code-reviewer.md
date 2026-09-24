@@ -61,9 +61,12 @@ no `git add`, no formatting commands that rewrite files. Bash is for reading onl
 The prompt gives the dev URL(s). Look at the running app, do not review UX from code alone:
 
 ```bash
-npx --yes playwright screenshot --viewport-size=1280,800 <url> /tmp/ux-desktop.png
-npx --yes playwright screenshot --viewport-size=390,844  <url> /tmp/ux-mobile.png
+SHOTS="$(dirname <findings file>)/ux-shots" && mkdir -p "$SHOTS"
+npx --yes playwright screenshot --viewport-size=1280,800 <url>/<page> "$SHOTS/<page>-desktop.png"
+npx --yes playwright screenshot --viewport-size=390,844  <url>/<page> "$SHOTS/<page>-mobile.png"
 ```
+
+Screenshots into that directory are the one write you are allowed besides the findings file.
 
 Then `Read` each PNG (Read renders images). Cover every page the changed files render, at desktop and mobile width.
 If screenshots fail, write `UX: code-only review, screenshots unavailable (<error>)` at the top of the report and cap

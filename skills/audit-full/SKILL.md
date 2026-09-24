@@ -23,6 +23,27 @@ The audit itself is judged by the read-only [`code-reviewer`](../../agents/code-
 
 Large project on `main`? Split by top-level area and spawn one auditor per area **in one tool-call block**.
 
+Spawn (standalone modes). Run the setup as **one** Bash call and paste the echoed values as literals, since shell
+variables do not survive between Bash calls:
+
+```bash
+RUN_DIR="${TMPDIR:-/tmp}/shipwright/$(git branch --show-current | tr / -)-$(date +%s)"
+mkdir -p "$RUN_DIR" && printf 'STATUS: RUNNING\n' > "$RUN_DIR/audit.md" && echo "RUN_DIR=$RUN_DIR"
+```
+
+```
+Agent({
+  subagent_type: "code-reviewer",          // "shipwright:code-reviewer" when installed as a plugin
+  name: "auditor",
+  prompt: "Lens: audit. Checklist: <SKILLS_DIR>/audit-full/SKILL.md §Audit checks.
+           Scope: <whole project | changed files vs BASE>. Findings file: <RUN_DIR>/audit.md.
+           Append, flip line 1 to STATUS: DONE, reply with path + verdict only."
+})
+```
+
+`SKILLS_DIR` is the parent of this skill's base directory. The agent has no Skill tool, so the checklist path must be
+absolute. One auditor per area → one findings file per area (`audit-<area>.md`).
+
 ## Audit checks
 
 The `audit` lens checklist. The auditor loads this section.

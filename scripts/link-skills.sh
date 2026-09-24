@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Links every skill to ~/.claude/skills/ and every agent to ~/.claude/agents/
 
-REPO="$(cd "$(dirname "$0")/.." && pwd)"
+REPO="$(cd "$(dirname "$0")/.." && pwd -P)"
 
 guard_dest() {
   local dest="$1"

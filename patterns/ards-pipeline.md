@@ -32,7 +32,7 @@ Each phase has a gate. If the gate fails, the pipeline **stops and reports**. It
 | Phase | Gate | What blocks |
 |---|---|---|
 | A+R round 1 | Every lens reported | A lens that crashed or was skipped means that dimension was never reviewed: re-run it, never report green |
-| R | Code > 9, UX = 10/10 | Still failing after round 4 (the fresh escalation reviewer) |
+| R | Code ≥ 9.5, UX = 10/10 | Still failing after round 4 (the fresh escalation reviewer) |
 | D | Docs accurate (binary) | Dead links, stale stats after 2 rounds |
 | S | Clean working tree | Uncommitted changes |
 

@@ -45,12 +45,12 @@ reviewer = spawn code-reviewer, name "reviewer-ux", lens "ux"
 loop:
   report = round == 1 ? reviewer's findings file
          : round <= 3 ? SendMessage("reviewer-ux", RE_REVIEW_PROMPT)   // re-read every changed file; re-screenshot affected pages
-         : round == 4 ? (shut down; spawn FRESH reviewer with round-3 table + fix SHA)
+         : round == 4 ? (release reviewer; spawn FRESH reviewer with round-3 table + fix SHA)
 
   if score == 10 AND no open finding of any severity AND reviewer read the current tree:
-      shut down reviewer → report → stop
+      release reviewer (stop messaging it) → report → stop
   if round == MAX_ROUNDS:
-      shut down reviewer → report remaining findings → stop (FAIL)
+      release reviewer (stop messaging it) → report remaining findings → stop (FAIL)
 
   show round table → fix ALL findings (every severity) → lint → commit → round += 1
 ```

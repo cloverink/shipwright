@@ -70,7 +70,7 @@ This session runs both loops from `/review-code-fix` and `/review-ux-fix`:
 
 | Review | Gate |
 |---|---|
-| Code | > 9 (9.5+ passes) |
+| Code | ≥ 9.5 (9.0-9.4 fails) |
 | UX | = 10/10, zero open findings |
 | Docs | binary pass/fail |
 
@@ -87,7 +87,7 @@ Scope: frontend + backend · Mode: fix
 
 | Review | Rounds | Score | Bar | Status |
 |---|---|---|---|---|
-| Code | 2 (continued) | 9.5 | > 9 | ✅ |
+| Code | 2 (continued) | 9.5 | ≥ 9.5 | ✅ |
 | UX | 3 (continued) | 10 | = 10 | ✅ |
 ```
 

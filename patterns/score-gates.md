@@ -13,7 +13,7 @@ Every Opus reviewer starts at **10** and deducts per finding:
 | Warning | -0.5 | -2 total |
 | Suggestion | -0.1 | -0.5 total |
 
-## The Code Review Gate: > 9 (not ≥ 9)
+## The Code Review Gate: ≥ 9.5
 
 | Score | Verdict | What it means |
 |---|---|---|
@@ -22,7 +22,8 @@ Every Opus reviewer starts at **10** and deducts per finding:
 | 9.0 – 9.4 | **Fail** | a Major, two Warnings, or a Warning plus nits |
 | < 9 | Fail | |
 
-Why not ≥ 9? A 9.0 means a Major issue (-1) or two Warnings are still open. That is not "basically clean", it is
+Why not ≥ 9? A 9.0 means a Major issue (-1) or two Warnings are still open. And because Suggestions cost 0.1,
+scores between 9.0 and 9.5 exist: write the gate as `>= 9.5`, never `> 9`, or a 9.4 slips through. That is not "basically clean", it is
 "has known issues".
 
 ## Why Suggestions cost 0.1
@@ -68,7 +69,7 @@ All thresholds are marked with `<!-- CONFIGURE -->` in the skill files.
 
 | Project type | Code gate | UX gate |
 |---|---|---|
-| Production app | > 9 (default) | 10/10 (default) |
-| Internal tool | > 8 | 9/10 |
-| Prototype/MVP | > 7 | 8/10 |
-| Open source library | > 9 | N/A (no UX) |
+| Production app | ≥ 9.5 (default) | 10/10 (default) |
+| Internal tool | ≥ 8.5 | 9/10 |
+| Prototype/MVP | ≥ 7.5 | 8/10 |
+| Open source library | ≥ 9.5 | N/A (no UX) |

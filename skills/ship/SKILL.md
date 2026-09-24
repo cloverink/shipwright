@@ -99,7 +99,7 @@ round = 2                                        // only if Step 2 committed any
 loop:
   if round <= 3:  report = SendMessage(reviewer-code / reviewer-ux, RE_REVIEW_PROMPT)      // same agents, parallel
   else:           report = spawn FRESH code-reviewer(s) with the round-3 table + fix SHA  // escalation
-  gate = code > 9 AND (ux == 10 with zero open findings OR FRONTEND_TOUCHED=no)
+  gate = code >= 9.5 AND (ux == 10 with zero open findings OR FRONTEND_TOUCHED=no)
   if gate:                     stop messaging the reviewers → break → Phase D
   if round == MAX_ROUNDS:      STOP → report remaining findings → do NOT run D or S
   fix every open finding of each failing lens → lint → commit "fix(<scope>): review fixes (round {round})"

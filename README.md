@@ -27,7 +27,7 @@ forever.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/ship-pipeline-dark.png">
-  <img alt="The /ship pipeline: pre-flight, then three Opus reviewers (auditor, reviewer-code, reviewer-ux) run as one parallel batch. The main session fixes and commits, a gate checks code > 9 and UX = 10, and on failure the same reviewers re-check via SendMessage. On pass: Phase D docs, then a pull request. Round 4 failing stops the pipeline." src="docs/assets/ship-pipeline.png">
+  <img alt="The /ship pipeline: pre-flight, then three Opus reviewers (auditor, reviewer-code, reviewer-ux) run as one parallel batch. The main session fixes and commits, a gate checks code ≥ 9.5 and UX = 10, and on failure the same reviewers re-check via SendMessage. On pass: Phase D docs, then a pull request. Round 4 failing stops the pipeline." src="docs/assets/ship-pipeline.png">
 </picture>
 
 | Step | What happens | Who |
@@ -35,7 +35,7 @@ forever.
 | **Pre-flight** | Blocks on `main` or an empty diff, runs lint + typecheck, commits leftovers | main session |
 | **A/R batch** | Audit, code review and UX review spawn **together** in one tool call over the same diff | 3 × Opus `code-reviewer` |
 | **Fix + commit** | Findings are unioned, fixed one writer per file, linted, committed as one round | main session (Sonnet) |
-| **Gate loop** | Code > 9 and UX = 10? No → the **same** reviewers re-check the fix. Round 4 is a fresh reviewer, then stop | same Opus reviewers |
+| **Gate loop** | Code ≥ 9.5 and UX = 10? No → the **same** reviewers re-check the fix. Round 4 is a fresh reviewer, then stop | same Opus reviewers |
 | **Phase D** | Docs synced against everything that shipped, verified by a binary docs gate | Sonnet + Opus |
 | **Phase S** | Rebase, push, open a PR carrying the round table and any leftover Suggestions | main session |
 
@@ -118,7 +118,7 @@ Sorted by `/ship` pipeline order, then standalone utilities.
 | [`/ship`](skills/ship/SKILL.md) | all | Sonnet | Orchestrates A/R batch → gate loop → docs → PR |
 | [`/audit-full`](skills/audit-full/SKILL.md) | A | Sonnet | Branch-aware audit: whole project on `main` (one tracker issue), diff-scoped on a feature branch |
 | [`/review-full`](skills/review-full/SKILL.md) | R | Sonnet | Detects scope, spawns code + UX reviewers in parallel, `--read-only` for a scored peek |
-| [`/review-code-fix`](skills/review-code-fix/SKILL.md) | R | Sonnet | Code review → fix loop, gate > 9, one reviewer across rounds |
+| [`/review-code-fix`](skills/review-code-fix/SKILL.md) | R | Sonnet | Code review → fix loop, gate ≥ 9.5, one reviewer across rounds |
 | [`/review-ux-fix`](skills/review-ux-fix/SKILL.md) | R | Sonnet | UX review → fix loop, gate 10/10, fixes every severity |
 | [`/update-docs`](skills/update-docs/SKILL.md) | D | Sonnet | Syncs tier 1-4 docs with what shipped |
 | [`/review-docs`](skills/review-docs/SKILL.md) | D | Sonnet | Binary docs gate: stats, links, code-doc sync |
@@ -157,7 +157,7 @@ Every reviewer starts at **10** and deducts:
 
 | Gate | Pass when | Rounds |
 |---|---|---|
-| **Code** | score **> 9** (a 9.0 means a Major is still open) | 3 continued + 1 fresh |
+| **Code** | score **≥ 9.5** (9.0-9.4 means a Major, two Warnings, or a Warning plus nits is open) | 3 continued + 1 fresh |
 | **UX** | exactly **10/10**, zero open findings | 3 continued + 1 fresh |
 | **Docs** | binary pass/fail | 2, same reviewer |
 
@@ -187,7 +187,7 @@ Every project-specific value is marked `<!-- CONFIGURE -->` in the skill files.
 | Frontend globs | `src/components/**`, `src/pages/**`, `*.tsx`, `*.css` | your paths |
 | Lint / typecheck | `npm run lint && npm run typecheck` | `pnpm …`, `bun …` |
 | Dev server (UX precheck) | `http://localhost:3000` | your URL |
-| Code gate | > 9 | > 8 internal tools, > 7 prototypes |
+| Code gate | ≥ 9.5 | ≥ 8.5 internal tools, ≥ 7.5 prototypes |
 | UX gate | 10/10 | 9/10 internal tools |
 | Max rounds | 4 (3 continued + 1 fresh) | more escalation rounds |
 | Merge strategy | `--squash` | `--merge`, `--rebase` |

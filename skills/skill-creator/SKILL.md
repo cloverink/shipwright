@@ -79,7 +79,7 @@ Every skill must define when it's done:
 "Review the code and fix issues."
 
 # Good: clear exit
-"Review → fix → re-review. Exit when score > 9, or stop after round 4 (fresh escalation)."
+"Review → fix → re-review. Exit when score ≥ 9.5, or stop after round 4 (fresh escalation)."
 ```
 
 ## Creation Process

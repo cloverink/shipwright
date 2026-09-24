@@ -1,6 +1,6 @@
 ---
 name: push
-description: Smart commit + push + auto-create PR. Blocks push to main. Runs pre-flight gate checks before pushing.
+description: Smart commit + push + auto-create PR. Blocks push to main. When called from /ship (bundled mode), verifies the ship gates and only opens the PR.
 model: sonnet
 ---
 
@@ -41,7 +41,7 @@ Before opening the PR, `/push` verifies:
 
 | Gate | Requirement |
 |------|-------------|
-| Code review | Score > 9 (Opus `code-reviewer`) |
+| Code review | Score ≥ 9.5 (Opus `code-reviewer`) |
 | UX review | Score = 10/10 (if frontend changed) |
 | Working tree | Clean (no uncommitted changes) |
 

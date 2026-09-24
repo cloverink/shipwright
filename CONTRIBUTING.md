@@ -83,7 +83,7 @@ If your skill uses one, link to the pattern doc instead of re-explaining. If you
 
 - SKILL.md is **actionable**: Claude can execute it, not just understand it
 - Has clear **exit conditions**: when does the skill report "done"?
-- Adheres to **score gates**: `>9` for code, `10/10` for UX, binary for docs
+- Adheres to **score gates**: `≥ 9.5` for code, `10/10` for UX, binary for docs
 - Has tested **bundling behavior**: sub-skills stage instead of commit when called from `/ship`
 - **Reviewers never write**: judgment comes from the read-only agent, fixes from the orchestrating session
 
