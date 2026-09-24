@@ -10,7 +10,7 @@ Review → fix → re-review until the code passes **> 9/10**.
 
 > **When to use:** code-only review when you want to skip scope detection (backend-only PR, library code).
 > **Use [`/review-full`](../review-full/SKILL.md) instead if:** the diff touches frontend. It runs UX review alongside.
-> **Called by:** `/review-full`, and `/ship` (this file's §Review focus is the `code` lens checklist).
+> **Called by:** `/review-full`. `/ship` does not call it, but uses §Review focus as its `code` lens checklist.
 
 ## Execution: runs in the MAIN session
 
@@ -42,26 +42,31 @@ loop:
   show round table to the user           // every round, before fixing
   fix ALL open findings (Critical, Major, Warning, Suggestion)
   lint + typecheck
-  commit (standalone) or stage (bundled) → record SHA
+  commit → record SHA
   round += 1
 ```
 
 ## Step 1: Spawn the reviewer
 
-Compute scope once and pass it in. The reviewer must not re-derive it.
+Compute scope once, in **one** Bash call, and pass the echoed values as literals (shell variables do not survive
+between Bash calls). The reviewer must not re-derive scope.
 
 ```bash
 BASE=$(git merge-base origin/main HEAD) || { echo "cannot resolve origin/main: git fetch first"; exit 1; }
 CHANGED=$(git diff --name-only "$BASE"; git ls-files --others --exclude-standard)
 RUN_DIR="${TMPDIR:-/tmp}/shipwright/$(git branch --show-current | tr / -)-$(date +%s)"
 mkdir -p "$RUN_DIR" && printf 'STATUS: RUNNING\n' > "$RUN_DIR/code.md"
+printf 'BASE=%s\nRUN_DIR=%s\nCHANGED:\n%s\n' "$BASE" "$RUN_DIR" "$CHANGED"
 ```
+
+`SKILLS_DIR` is the parent of this skill's base directory (printed when the skill loads). The reviewer has no Skill
+tool and, on a plugin install, the skills are not in the project, so pass the checklist as an absolute path.
 
 ```
 Agent({
   subagent_type: "code-reviewer",          // "shipwright:code-reviewer" when installed as a plugin
   name: "reviewer-code",
-  prompt: "Lens: code. Checklist: /review-code-fix §Review focus.
+  prompt: "Lens: code. Checklist: <SKILLS_DIR>/review-code-fix/SKILL.md §Review focus.
            Changed files (read each END-TO-END): <CHANGED>. Diff base: <BASE>.
            Findings file: <RUN_DIR>/code.md: append, flip line 1 to STATUS: DONE, reply with path + verdict only."
 })
@@ -69,7 +74,7 @@ Agent({
 
 ## Step 2: Re-review prompt (rounds 2-3)
 
-Paste the real post-fix `git diff $BASE --stat`:
+Paste the real post-fix `git diff <BASE>..HEAD --stat`:
 
 > Findings 1-N were addressed in commit `<sha>`; post-fix stat: `<stat>`. Your context still holds the PRE-fix files.
 > Re-Read EVERY changed file end-to-end now. For each finding you mark resolved, QUOTE the post-fix line(s). List every
@@ -84,7 +89,7 @@ Reviewer unreachable → spawn fresh with the previous table + SHA, and mark the
 | Score | Result |
 |---|---|
 | 10 | Pass, clean |
-| 9.5 – 9.9 | Pass. Leftover Suggestions go to the PR body |
+| 9.5 – 9.9 | Pass. Stop fixing; leftovers (at most one Warning, plus Suggestions) go to the PR body |
 | 9.0 – 9.4 | **Fail** |
 | < 9 | Fail |
 
@@ -135,10 +140,11 @@ The `code` lens checklist. The reviewer loads this section.
 Result: ✅ passes > 9 · or · ❌ still failing after round 4, remaining findings below
 ```
 
-## Bundling
+## Commits
 
-Standalone: commit each round as `fix(<scope>): review fixes (round N)`. Called from `/review-full` or `/ship`: stage
-only, the parent commits. See [Phase Bundling](../../patterns/phase-bundling.md).
+Every round commits, standalone or under `/review-full`: `fix(<scope>): review fixes (round N)`. The re-review prompt
+points the same reviewer at that SHA, so a round without a commit cannot be re-reviewed. (`/ship` does not call this
+skill; it runs its own loop and only borrows §Review focus as the `code` lens checklist.)
 
 ## Guidelines
 

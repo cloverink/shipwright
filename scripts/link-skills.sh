@@ -9,7 +9,7 @@ guard_dest() {
   local dest="$1"
   if [ -L "$dest" ]; then
     local resolved
-    resolved="$(readlink -f "$dest")"
+    resolved="$(cd "$dest" 2>/dev/null && pwd -P || readlink "$dest")"   # no readlink -f on older macOS
     case "$resolved" in
       "$REPO"|"$REPO"/*)
         echo "error: $dest is a symlink into this repo ($resolved)." >&2

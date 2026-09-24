@@ -11,7 +11,7 @@ Keep documentation in sync with code. Detects what changed, updates the right ti
 ## How it works
 
 ```
-1. Detect changes  → git diff vs main (or vs HEAD if standalone)
+1. Detect changes  → git diff vs the merge base with origin/main
 2. Classify        → categorize files into doc tiers
 3. Update          → edit relevant docs per tier
 4. Verify stats    → run stats tools, refresh counts
@@ -35,7 +35,7 @@ When called standalone:
 
 ```bash
 BRANCH=$(git branch --show-current)
-BASE=$(git merge-base origin/main HEAD 2>/dev/null || echo HEAD~5)
+BASE=$(git merge-base origin/main HEAD) || { echo "cannot resolve origin/main, git fetch first"; exit 1; }   # never guess a base
 git diff --name-only $BASE..HEAD
 git diff --name-only HEAD  # also include unstaged
 ```

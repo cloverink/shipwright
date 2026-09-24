@@ -26,7 +26,7 @@ my-skill/
 ---
 name: my-skill
 description: One-line description used for skill discovery and relevance matching
-model: opus               # Optional: opus, sonnet, or haiku
+model: sonnet             # Required: opus, sonnet, or haiku (CI rejects a SKILL.md without it)
 ---
 
 # /my-skill
@@ -79,7 +79,7 @@ Every skill must define when it's done:
 "Review the code and fix issues."
 
 # Good: clear exit
-"Review → fix → re-review. Exit when score > 9 or after 3 rounds."
+"Review → fix → re-review. Exit when score > 9, or stop after round 4 (fresh escalation)."
 ```
 
 ## Creation Process
@@ -95,7 +95,7 @@ Every skill must define when it's done:
 
 Before publishing a skill:
 
-- [ ] Frontmatter has `name` and `description`
+- [ ] Frontmatter has `name`, `description` and `model`
 - [ ] Description is specific enough for relevance matching
 - [ ] Instructions are actionable (Claude can execute them)
 - [ ] Exit conditions are defined

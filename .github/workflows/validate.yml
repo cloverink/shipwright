@@ -123,12 +123,18 @@ jobs:
       - name: Verify README skills table
         run: |
           expected=$(jq '.skills | length' .claude-plugin/plugin.json)
-          readme_count=$(grep -cE '^\| \[`/' README.md || echo 0)
+          readme_count=$(grep -cE '^\| \[`/' README.md || true)   # grep -c prints 0 itself on no match
           if [ "$readme_count" -ne "$expected" ]; then
             echo "::error::README Skills table has $readme_count rows (expected $expected)"
             exit 1
           fi
           echo "✓ README Skills table has $expected rows"
+          badge=$(grep -oE 'badge/skills-[0-9]+' README.md | grep -oE '[0-9]+$' || true)
+          if [ "$badge" != "$expected" ]; then
+            echo "::error::README skills badge says '$badge' (expected $expected)"
+            exit 1
+          fi
+          echo "✓ README skills badge says $expected"
 
       - name: Verify README diagrams exist
         run: |

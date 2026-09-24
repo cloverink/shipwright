@@ -15,7 +15,9 @@ Review flow rebuilt on the harness that ships real work in production: faster ro
 - **Reviewer Continuity pattern** (`patterns/reviewer-continuity.md`): one named reviewer per gate, continued via `SendMessage` for rounds 2-3, an evidence rule for continued rounds, a fresh escalation reviewer at round 4, then stop.
 - **Findings files**: reviewers append to a `STATUS: RUNNING` file and flip it to `DONE`, so a lost reply or a crashed lens can never read as a green gate.
 - `/review-full --read-only` for a scored peek with no edits.
-- Dev-server precheck in `/review-ux-fix` so the 10/10 gate cannot fail by construction.
+- UX lens looks at the running app (Playwright screenshots read back as images), with a dev-server + screenshot precheck in `/review-ux-fix` so the 10/10 gate cannot fail by construction.
+- Reviewers receive their checklist as an absolute path, so the agent works on a plugin install where skills live in the plugin cache.
+- `/push` bundled mode: under `/ship` it only opens (or updates) the PR.
 - README diagrams generated with diagram-design (`docs/diagrams/`), light + dark PNGs in `docs/assets/`.
 - CI: validates agents (frontmatter, read-only tools, registration) and README image paths; the README row check now reads the skill count from `plugin.json`.
 

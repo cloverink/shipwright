@@ -37,8 +37,9 @@ Suggestions used to cost nothing, which meant a 10/10 could still hide a pile of
 -0.05 was considered and rejected: it takes ten nits to move the score by half a point, so it adds false precision
 without changing any outcome.
 
-**Fix policy:** when the gate fails, the loop fixes **every** open finding, Suggestions included. When the gate
-passes, leftover Suggestions are listed in the PR body for the human reviewer.
+**Fix policy:** when the gate fails, the loop fixes **every** open finding of that lens, Suggestions included. When
+the gate passes, the loop stops and fixes nothing more: the leftovers (at most one Warning, plus Suggestions) are
+listed in the PR body for the human reviewer. `/ship`, `/review-full` and `/review-code-fix` all follow this rule.
 
 ## The UX Review Gate: 10/10
 

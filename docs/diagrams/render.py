@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Rasterize docs/diagrams/*.html into docs/assets/*.png at 2x with headless Chrome."""
+"""Rasterize docs/diagrams/*.html into docs/assets/*.png at 2x with headless Chrome.
+
+Needs network access: the diagrams load Geist / Instrument Serif from Google Fonts. Offline renders fall back to
+system fonts without an error, so check the PNGs before committing.
+"""
 import re
 import subprocess
 import sys
@@ -17,7 +21,10 @@ if not CHROME:
 
 ASSETS.mkdir(exist_ok=True)
 for html in sorted(HERE.glob("*.html")):
-    w, h = map(int, re.search(r'viewBox="0 0 (\d+) (\d+)"', html.read_text()).groups())
+    match = re.search(r'viewBox="0 0 (\d+) (\d+)"', html.read_text())
+    if not match:
+        sys.exit(f"{html.name}: no viewBox found, cannot size the screenshot")
+    w, h = map(int, match.groups())
     out = ASSETS / f"{html.stem}.png"
     subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
                     "--force-device-scale-factor=2", f"--window-size={w},{h}",

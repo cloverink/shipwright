@@ -60,14 +60,14 @@ Commit the HTML sources and the PNGs together.
 |------------|------|
 | **Model field** | shorthand (`opus`, `sonnet`, `haiku`), NOT full IDs |
 | **CONFIGURE markers** | every project-specific value gets `<!-- CONFIGURE: ... -->` |
-| **Cross-references** | use bare skill names (`/audit-full`) not file paths |
+| **Cross-references** | bare skill names (`/audit-full`) in prose; relative links (`../audit-full/SKILL.md`) for navigation |
 | **Commit format** | Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`) |
 | **Scope in commits** | per-package scope when relevant (`fix(api):`, `docs(www):`) |
 | **Layout** | skills live FLAT under `skills/<name>/`: no bucket folders |
 
 ## Using existing patterns
 
-Five patterns are documented in [`patterns/`](patterns/):
+The patterns are documented in [`patterns/`](patterns/):
 
 - A→R→D→S Pipeline
 - Reviewer Continuity

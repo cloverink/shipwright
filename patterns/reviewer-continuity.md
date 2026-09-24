@@ -51,16 +51,23 @@ fresh one. The evidenced re-read is what makes a continued reviewer as rigorous 
 
 ## Mechanics
 
-**Spawn named.** Only a named agent can be reached by `SendMessage` after it has reported:
+**Spawn named.** Give the reviewer a stable name so every round addresses the same agent without juggling IDs.
+`SendMessage` may be a deferred tool: load it (ToolSearch `select:SendMessage`) before round 2.
 
 ```
-Agent({ subagent_type: "code-reviewer", name: "reviewer-code", prompt: "..." })
+Agent({ subagent_type: "code-reviewer",            // "shipwright:code-reviewer" when installed as a plugin
+        name: "reviewer-code", prompt: "..." })
 ...
 SendMessage({ to: "reviewer-code", message: "<re-review prompt>" })
 ```
 
 If the reviewer is unreachable (exited, or no reply after one nudge), spawn a fresh one, hand it the previous findings
 table plus the fix SHA, and record `round N ran fresh` in the round table.
+
+**Checklist by absolute path.** The reviewer has no Skill tool and, on a plugin install, the skills live in the
+plugin cache rather than the project. The orchestrator passes the checklist as an absolute path plus section
+(`<SKILLS_DIR>/review-code-fix/SKILL.md §Review focus`), where `SKILLS_DIR` is the parent of the running skill's base
+directory.
 
 **Findings file, not reply.** Subagent replies sometimes do not arrive. Before spawning, the orchestrator creates a
 run-unique file with `STATUS: RUNNING` on line 1 and passes its absolute path. The reviewer appends its report and
@@ -78,7 +85,7 @@ reviewer first.
 **Reviewers never write.** The reviewer is read-only (`tools: Read, Grep, Glob, Bash`). The orchestrating session
 applies fixes and commits. A reviewer that fixes its own findings is grading its own homework.
 
-**Shut down when the gate closes,** not after each round.
+**Release the reviewer when the gate closes** (stop messaging it), not after each round.
 
 ## Which skills use it
 

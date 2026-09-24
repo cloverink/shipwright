@@ -42,6 +42,7 @@ When called from `/ship`:
 - Read-only review of staged doc changes
 - If issues found: fix in-place, re-stage, re-review
 - Do NOT commit: `/ship` commits per phase
+- Round 2 has no SHA to cite, so the re-review prompt cites `git diff --cached --stat -- '*.md'` instead
 
 ## Step 1: Gather doc changes
 
@@ -52,7 +53,31 @@ git diff --cached -- '*.md'
 
 If no staged doc changes AND `/update-docs` reported "clean" → report "Phase D clean: no doc changes to review" and pass.
 
-## Step 2: Review focus areas
+## Step 2: Spawn the docs reviewer
+
+Run Step 3's tools first. Spawn only when Step 1 found a staged doc diff or a tool reports drift. Create the findings file and pass literals
+(shell variables do not survive between Bash calls):
+
+```bash
+RUN_DIR="${TMPDIR:-/tmp}/shipwright/$(git branch --show-current | tr / -)-$(date +%s)"
+mkdir -p "$RUN_DIR" && printf 'STATUS: RUNNING\n' > "$RUN_DIR/docs.md" && echo "$RUN_DIR"
+```
+
+```
+Agent({
+  subagent_type: "code-reviewer",          // "shipwright:code-reviewer" when installed as a plugin
+  name: "reviewer-docs",
+  prompt: "Lens: docs. Checklist: <SKILLS_DIR>/review-docs/SKILL.md §Review focus areas.
+           Staged doc diff: <git diff --cached --stat output>. Step 3 tool output: <paste>.
+           Findings file: <RUN_DIR>/docs.md. Append, flip line 1 to STATUS: DONE, reply with path + verdict only."
+})
+```
+
+`SKILLS_DIR` is the parent of this skill's base directory. The verdict is binary: `Result: PASS` or `Result: FAIL`.
+
+## Review focus areas
+
+The `docs` lens checklist. The reviewer loads this section.
 
 | Risk | What to check |
 |------|---------------|

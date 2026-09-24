@@ -49,8 +49,11 @@ Docs:     docs/**, *.md
 
 Both reviewers read the same diff and neither writes, so they never wait for each other:
 
-- `reviewer-code`: `code-reviewer` (Opus), lens `code`
-- `reviewer-ux`: `code-reviewer` (Opus), lens `ux` (frontend only; dev-server precheck from `/review-ux-fix` Step 0 first)
+- `reviewer-code`: `code-reviewer` (Opus), lens `code`, checklist `<SKILLS_DIR>/review-code-fix/SKILL.md §Review focus`
+- `reviewer-ux`: `code-reviewer` (Opus), lens `ux`, checklist `<SKILLS_DIR>/review-ux-fix/SKILL.md §Review categories`
+  (frontend only; run the `/review-ux-fix` Step 0 precheck first)
+
+`SKILLS_DIR` is the parent of this skill's base directory. Pass absolute paths: the agent has no Skill tool.
 
 Each gets its own findings file (see [Reviewer Continuity](../../patterns/reviewer-continuity.md) §Mechanics).
 
@@ -59,7 +62,7 @@ Each gets its own findings file (see [Reviewer Continuity](../../patterns/review
 This session runs both loops from `/review-code-fix` and `/review-ux-fix`:
 
 1. Union the findings, group by file, one writer per file, fix, lint.
-2. One commit per round covering both lenses (standalone) or stage (bundled).
+2. One commit per round covering both lenses, so the re-review can cite the SHA.
 3. Continue **the same reviewers** with `SendMessage` for rounds 2-3, in parallel. Round 4 = fresh escalation.
    A lens that already passed is not re-run unless the fixes touched its files.
 

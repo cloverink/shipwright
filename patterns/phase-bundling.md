@@ -1,10 +1,10 @@
 # Phase Bundling
 
-How sub-skills suppress commits when called from an orchestrator.
+How non-looping sub-skills suppress commits when called from an orchestrator.
 
 ## The Problem
 
-`/ship` calls `/audit-full`, `/review-code-fix`, and other skills. If each skill auto-commits its changes, you get:
+`/ship` calls `/update-docs` and `/push`, and `/audit-full` can run under a parent too. If each skill auto-commits its changes, you get:
 
 ```
 abc1234 refactor(api): audit: dead code
@@ -35,6 +35,14 @@ ghi9012 docs(api): sync documentation
 
 Round commits matter for [Reviewer Continuity](reviewer-continuity.md): the re-review prompt tells the same reviewer
 "findings 1-N were addressed in commit `<sha>`", so every round needs its own SHA.
+
+## Loops always commit
+
+Fix **loops** (`/review-code-fix`, `/review-ux-fix`, `/review-full`, the `/ship` gate loop) are the exception: every
+round commits, because the re-review prompt points the same reviewer at that round's SHA (see
+[Reviewer Continuity](reviewer-continuity.md)). Bundling applies to single-pass skills: `/audit-full`, `/update-docs`,
+`/review-docs`, `/push`. `/ship` does not call the loop skills at all; it runs its own loop and borrows their
+checklists.
 
 ## How to Implement
 

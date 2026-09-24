@@ -27,9 +27,17 @@ Types: feat, fix, docs, style, refactor, perf, test, chore
 
 <!-- CONFIGURE: Adjust scopes to match your project (e.g., www, api, docs) -->
 
-## Pre-flight Gates (when called from /ship)
+## Bundling behavior (called from /ship)
 
-When `/push` runs as Phase S of `/ship`, it verifies gates before pushing:
+`/ship` Phase S has already committed, rebased and pushed. In bundled mode `/push`:
+
+- skips steps 2-5 (no stage, commit, rebase or push)
+- verifies the gates below, then only runs step 6 with the PR body `/ship` hands over
+- if a PR already exists for the branch, updates its body instead (`gh pr edit --body-file`)
+
+## Pre-flight Gates (bundled mode)
+
+Before opening the PR, `/push` verifies:
 
 | Gate | Requirement |
 |------|-------------|

@@ -12,9 +12,11 @@ no `git add`, no formatting commands that rewrite files. Bash is for reading onl
 
 ## Your contract
 
-1. **Lens**: the spawn prompt names exactly one lens: `code`, `ux`, `audit` or `docs`. Load that lens's checklist
-   from the skill the prompt points you to (`/review-code-fix`, `/review-ux-fix`, `/audit-full`, `/review-docs`) and
-   follow it as the source of truth. Do not invent a different rubric.
+1. **Lens**: the spawn prompt names exactly one lens (`code`, `ux`, `audit` or `docs`) and gives the checklist as an
+   **absolute file path plus section** (for example `/…/skills/review-code-fix/SKILL.md §Review focus`) or pastes it
+   inline. `Read` that section and follow it as the source of truth. Do not invent a different rubric, and do not
+   search the project for skills: on a plugin install they are not there. No checklist in the prompt → say so in the
+   findings file and stop.
 2. **Scope**: the prompt gives you the changed-file list, the diff base (`BASE`) and whether frontend was touched.
    Do not re-derive scope. Read every changed file **end-to-end**, not just the diff hunks: missing error, loading and
    empty states and untested edge cases rarely show up inside a hunk.
@@ -33,6 +35,10 @@ no `git add`, no formatting commands that rewrite files. Bash is for reading onl
 
    Never round a score up to pass a gate. Every finding carries `[file:line]`.
 
+   **Lens exceptions:** `docs` is binary. Emit the check table from the docs checklist and `Result: PASS` or
+   `Result: FAIL` instead of a score. `audit` has no gate. Tag findings P0-P3 (P0 = Critical … P3 = Suggestion) and
+   still report the Overall score as a signal.
+
 5. **Output format** (append to the findings file):
 
    ```markdown
@@ -49,6 +55,19 @@ no `git add`, no formatting commands that rewrite files. Bash is for reading onl
    | **Overall** | **X/10** |
    | Files read | N |
    ```
+
+## Seeing the app (ux lens)
+
+The prompt gives the dev URL(s). Look at the running app, do not review UX from code alone:
+
+```bash
+npx --yes playwright screenshot --viewport-size=1280,800 <url> /tmp/ux-desktop.png
+npx --yes playwright screenshot --viewport-size=390,844  <url> /tmp/ux-mobile.png
+```
+
+Then `Read` each PNG (Read renders images). Cover every page the changed files render, at desktop and mobile width.
+If screenshots fail, write `UX: code-only review, screenshots unavailable (<error>)` at the top of the report and cap
+the score at 8, so the orchestrator knows the gate cannot pass as configured.
 
 ## Continued rounds (you will be messaged again)
 

@@ -10,7 +10,7 @@ UX review → fix **everything** → re-review until **10/10**.
 
 > **When to use:** UX-only polish (CSS, spacing, states, micro-interactions) with no logic changes.
 > **Use [`/review-full`](../review-full/SKILL.md) instead if:** the diff has logic or API changes too.
-> **Called by:** `/review-full`, and `/ship` (this file's §Review categories is the `ux` lens checklist).
+> **Called by:** `/review-full`. `/ship` does not call it, but uses §Review categories as its `ux` lens checklist.
 
 ## Execution: runs in the MAIN session
 
@@ -19,17 +19,21 @@ Same contract as [`/review-code-fix`](../review-code-fix/SKILL.md): this session
 fixes itself. UX findings are the most subjective in the pipeline, which is exactly where a fresh reviewer every round
 makes the score oscillate. See [Reviewer Continuity](../../patterns/reviewer-continuity.md).
 
-## Step 0: Dev server precheck (before round 1)
+## Step 0: Dev server + screenshot precheck (before round 1)
 
-A UX reviewer that cannot see the app can only read code, so it caps its score. A 10/10 gate then fails by
-construction and burns every round. Check first:
+The reviewer looks at the running app by screenshotting it with Playwright and reading the PNGs (see the agent's
+§Seeing the app). Without screenshots it caps the UX score at 8, so a 10/10 gate would fail by construction and burn
+every round. Check both before spawning:
 
 ```bash
-curl -sf -o /dev/null http://localhost:3000 && echo up || echo down   # <!-- CONFIGURE: dev URL(s) -->
+curl -sf -o /dev/null http://localhost:3000 && echo up || echo down            # <!-- CONFIGURE: dev URL(s) -->
+npx --yes playwright screenshot http://localhost:3000 "${TMPDIR:-/tmp}/ux-precheck.png" && echo screenshots-ok
 ```
 
-Down → start it (`<!-- CONFIGURE: npm run dev -->`) and re-check. Still down → **STOP**: "UX gate blocked: dev server
-down". Never spawn a reviewer whose ceiling is below the gate.
+Server down → start it (`<!-- CONFIGURE: npm run dev -->`) and re-check. Screenshots fail → `npx playwright install
+chromium` once. Still failing → **STOP**: "UX gate blocked: cannot see the app". Never spawn a reviewer whose ceiling
+is below the gate. Pass the dev URL(s) in the spawn prompt, with the checklist as an absolute path:
+`<SKILLS_DIR>/review-ux-fix/SKILL.md §Review categories`.
 
 ## Algorithm
 
@@ -40,7 +44,7 @@ reviewer = spawn code-reviewer, name "reviewer-ux", lens "ux"
 
 loop:
   report = round == 1 ? reviewer's findings file
-         : round <= 3 ? SendMessage("reviewer-ux", RE_REVIEW_PROMPT)   // re-check only pages whose files changed
+         : round <= 3 ? SendMessage("reviewer-ux", RE_REVIEW_PROMPT)   // re-read every changed file; re-screenshot affected pages
          : round == 4 ? (shut down; spawn FRESH reviewer with round-3 table + fix SHA)
 
   if score == 10 AND no open finding of any severity AND reviewer read the current tree:
@@ -48,7 +52,7 @@ loop:
   if round == MAX_ROUNDS:
       shut down reviewer → report remaining findings → stop (FAIL)
 
-  show round table → fix ALL findings (every severity) → lint → commit or stage → round += 1
+  show round table → fix ALL findings (every severity) → lint → commit → round += 1
 ```
 
 The re-review prompt and its evidence rule (quoted post-fix lines, re-read list, regression-hunt note) are identical
@@ -78,9 +82,10 @@ The `ux` lens checklist. The reviewer loads this section.
 
 <!-- CONFIGURE: add your design system rules and component library -->
 
-## Bundling
+## Commits
 
-Standalone: commit each round as `fix(<scope>): UX fixes (round N)`. Called from `/review-full` or `/ship`: stage only.
+Every round commits (`fix(<scope>): UX fixes (round N)`), standalone or under `/review-full`, so the same reviewer
+can be pointed at the SHA. `/ship` does not call this skill; it runs its own loop.
 
 ## Relationship to /review-code-fix
 

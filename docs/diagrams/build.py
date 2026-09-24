@@ -172,7 +172,7 @@ class Svg:
 # ---------------------------------------------------------------------------
 # 1. /ship pipeline
 # ---------------------------------------------------------------------------
-def pipeline(p):
+def pipeline(p, slug):
     s = Svg(p)
     W, H = 1240, 540
     # zone first (painted under everything)
@@ -208,7 +208,7 @@ def pipeline(p):
                        "Round 4 brings one fresh reviewer as escalation, then the pipeline stops."])
     s.legend(484, W, [("opus", "read-only reviewer agent"), ("sonnet", "main session writes"),
                       ("accent-arrow", "same reviewer, next round"), ("focal", "deliverable")])
-    return s.render("ship-pipeline", W, H, "How /ship works",
+    return W, s.render(slug, W, H, "How /ship works",
                     "Flowchart of the /ship pipeline: pre-flight, a parallel batch of three Opus reviewers, "
                     "a fix-and-commit step, a gate that loops back to the same reviewers until it passes, then docs and a pull request.")
 
@@ -216,7 +216,7 @@ def pipeline(p):
 # ---------------------------------------------------------------------------
 # 2. Reviewer continuity
 # ---------------------------------------------------------------------------
-def continuity(p):
+def continuity(p, slug):
     s = Svg(p)
     W, H = 1240, 460
     s.zone(32, 64, 704, 160, "ROUNDS 1–3 · ONE OPUS REVIEWER · CONTEXT KEPT", accent=True)
@@ -256,7 +256,7 @@ def continuity(p):
     s.aside(784, 280, ["Same reviewer = faster", "re-checks and one stable", "bar. Any round that passes", "the gate exits early."])
     s.legend(412, W, [("opus", "code-reviewer agent"), ("accent-arrow", "continued via SendMessage"),
                       ("arrow", "escalate / stop"), ("dashed", "rule applies")])
-    return s.render("reviewer-continuity", W, H, "Reviewer continuity",
+    return W, s.render(slug, W, H, "Reviewer continuity",
                     "Rounds one to three reuse one Opus reviewer through SendMessage under an evidence rule; "
                     "round four spawns a fresh reviewer as escalation, and a still-failing gate stops and reports.")
 
@@ -264,7 +264,7 @@ def continuity(p):
 # ---------------------------------------------------------------------------
 # 3. Who does what
 # ---------------------------------------------------------------------------
-def roles(p):
+def roles(p, slug):
     s = Svg(p)
     W, H = 1240, 400
     s.zone(684, 24, 304, 304, "CODE-REVIEWER AGENT · READ-ONLY")
@@ -287,7 +287,7 @@ def roles(p):
     s.aside(1012, 116, ["Reviewers never write.", "The session that fixes", "is never the one", "that grades."])
     s.legend(352, W, [("opus", "judges (read-only)"), ("sonnet", "builds (writes)"),
                       ("accent-arrow", "work handed out"), ("dashed", "verdict returned")])
-    return s.render("roles", W, H, "Opus judges, Sonnet builds",
+    return W, s.render(slug, W, H, "Opus judges, Sonnet builds",
                     "The Sonnet main session spawns and continues read-only Opus reviewer agents, "
                     "reads their verdicts from a findings file, applies fixes, and opens the pull request.")
 
@@ -311,12 +311,10 @@ HTML = """<!DOCTYPE html>
 """
 
 if __name__ == "__main__":
-    for name, fn, w in [("ship-pipeline", pipeline, 1240), ("reviewer-continuity", continuity, 1240),
-                        ("roles", roles, 1240)]:
+    for name, fn in [("ship-pipeline", pipeline), ("reviewer-continuity", continuity), ("roles", roles)]:
         for theme, pal in PALETTES.items():
-            svg = fn(pal)
             slug = name if theme == "light" else f"{name}-dark"
-            svg = re.sub(rf"\b{name}-(title|desc)\b", rf"{slug}-\1", svg)
-            title = svg.split("<title", 1)[1].split(">", 1)[1].split("<", 1)[0]
-            (OUT / f"{slug}.html").write_text(HTML.format(title=title, paper=pal["paper"], w=w, svg=svg))
+            width, svg = fn(pal, slug)
+            title = re.search(r"<title[^>]*>([^<]*)</title>", svg).group(1)
+            (OUT / f"{slug}.html").write_text(HTML.format(title=title, paper=pal["paper"], w=width, svg=svg))
             print("wrote", slug)
