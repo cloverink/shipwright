@@ -18,6 +18,7 @@ Review flow rebuilt on the harness that ships real work in production: faster ro
 - UX lens looks at the running app (Playwright screenshots read back as images), with a dev-server + screenshot precheck in `/review-ux-fix` so the 10/10 gate cannot fail by construction.
 - Reviewers receive their checklist as an absolute path, so the agent works on a plugin install where skills live in the plugin cache.
 - `/push` bundled mode: under `/ship` it only opens (or updates) the PR.
+- `/audit-full` on `main` can fan out one Opus auditor per top-level area in parallel, one findings file each.
 - README diagrams generated with diagram-design (`docs/diagrams/`), light + dark PNGs in `docs/assets/`.
 - CI: validates agents (frontmatter, read-only tools, registration) and README image paths; the README row check now reads the skill count from `plugin.json`.
 
@@ -26,8 +27,10 @@ Review flow rebuilt on the harness that ships real work in production: faster ro
 - **`/ship` runs Audit and Review round 1 as one parallel batch** (auditor + reviewer-code + reviewer-ux in one tool call), one commit per round.
 - **`/ship` runs in the main session** instead of delegating the pipeline to one subagent.
 - **Fix loops keep the same reviewer** across rounds 1-3 instead of spawning a fresh one each round. Max rounds: 3 continued + 1 fresh (was 3 fresh).
+- **Code gate is now `>= 9.5`** (was `> 9`): with -0.1 Suggestions, scores of 9.1-9.4 exist and now fail explicitly.
 - **Suggestions now cost -0.1 each (max -0.5)** instead of 0. Suggestions alone still cannot fail the code gate; when a gate fails, every open finding is fixed.
 - Orchestrating skills (`/ship`, `/review-code-fix`, `/review-ux-fix`, `/review-docs`) moved to `model: sonnet`, since the Opus judgment now lives in the agent.
+- `/update-docs` and `/ship` never guess a diff base: they stop if `origin/main` cannot be resolved (was a silent `HEAD~5` fallback in `/update-docs`).
 - `scripts/link-skills.sh` also links `agents/*` into `~/.claude/agents`.
 
 ## [0.1.1] — 2026-05-28
