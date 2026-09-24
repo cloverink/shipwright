@@ -27,11 +27,11 @@ labels: enhancement
 
 ## Model recommendation
 
-<!-- opus / sonnet / haiku — and why (depth of reasoning required) -->
+<!-- opus / sonnet / haiku: and why (depth of reasoning required) -->
 
 ## Related patterns
 
-<!-- Does this use any of: A→R→D→S Pipeline, Score Gates, Branch-Aware Mode, Phase Bundling? -->
+<!-- Does this use any of: A→R→D→S Pipeline, Reviewer Continuity, Score Gates, Branch-Aware Mode, Phase Bundling? -->
 
 ## Alternatives considered
 

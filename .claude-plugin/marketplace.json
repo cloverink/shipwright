@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "shipwright",
-  "description": "Production-grade Claude Code skills for shipping quality code via audit → review → docs → PR pipeline.",
+  "description": "Production-grade Claude Code skills for shipping quality code via audit \u2192 review \u2192 docs \u2192 PR pipeline.",
   "owner": {
     "name": "Aran Chananar"
   },
@@ -9,7 +9,7 @@
     {
       "name": "shipwright",
       "source": "./",
-      "description": "Full shipping pipeline: 12 skills covering audit, code/UX/docs review, parallel building, frontend design, and PR ship/merge. Strict quality gates: code >9/10, UX 10/10, docs binary pass/fail.",
+      "description": "Full shipping pipeline: 12 skills + a read-only Opus code-reviewer agent. Audit and review run as one parallel batch, the same reviewer re-checks every fix round (faster, no oscillating scores). Strict gates: code ≥9.5/10, UX 10/10, docs binary pass/fail.",
       "version": "0.1.1",
       "author": {
         "name": "Aran Chananar"

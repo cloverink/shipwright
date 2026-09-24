@@ -26,12 +26,12 @@ my-skill/
 ---
 name: my-skill
 description: One-line description used for skill discovery and relevance matching
-model: opus               # Optional: opus, sonnet, or haiku
+model: sonnet             # Required: opus, sonnet, or haiku (CI rejects a SKILL.md without it)
 ---
 
 # /my-skill
 
-[Core instructions — what to do, how to do it, when to stop]
+[Core instructions: what to do, how to do it, when to stop]
 ```
 
 ## Design Principles
@@ -60,13 +60,13 @@ State which type your skill is. Ambiguity leads to shortcuts.
 Write instructions that Claude can execute, not descriptions of what a human would do.
 
 ```
-# Bad — describes, doesn't instruct
+# Bad: describes, doesn't instruct
 "The review process involves examining code for quality issues."
 
-# Good — actionable
+# Good: actionable
 "Read every changed file end-to-end. For each file, check:
-1. Type safety — no `any`, explicit return types
-2. Security — no secrets, input validation
+1. Type safety: no `any`, explicit return types
+2. Security: no secrets, input validation
 List issues as [severity] [file:line] description."
 ```
 
@@ -75,27 +75,27 @@ List issues as [severity] [file:line] description."
 Every skill must define when it's done:
 
 ```
-# Bad — no exit condition
+# Bad: no exit condition
 "Review the code and fix issues."
 
-# Good — clear exit
-"Review → fix → re-review. Exit when score > 9 or after 3 rounds."
+# Good: clear exit
+"Review → fix → re-review. Exit when score ≥ 9.5, or stop after round 4 (fresh escalation)."
 ```
 
 ## Creation Process
 
-1. **Define the trigger** — when should this skill activate? Be specific.
-2. **Write the happy path** — what does the skill do when everything works?
-3. **Add failure modes** — what happens when things go wrong? When does it stop and ask the user?
-4. **Add configuration points** — mark project-specific values with `<!-- CONFIGURE -->` comments.
-5. **Test with real tasks** — invoke the skill on actual work. Does it produce good results?
-6. **Iterate** — skills improve with use. Update based on what works.
+1. **Define the trigger**: when should this skill activate? Be specific.
+2. **Write the happy path**: what does the skill do when everything works?
+3. **Add failure modes**: what happens when things go wrong? When does it stop and ask the user?
+4. **Add configuration points**: mark project-specific values with `<!-- CONFIGURE -->` comments.
+5. **Test with real tasks**: invoke the skill on actual work. Does it produce good results?
+6. **Iterate**: skills improve with use. Update based on what works.
 
 ## Validation Checklist
 
 Before publishing a skill:
 
-- [ ] Frontmatter has `name` and `description`
+- [ ] Frontmatter has `name`, `description` and `model`
 - [ ] Description is specific enough for relevance matching
 - [ ] Instructions are actionable (Claude can execute them)
 - [ ] Exit conditions are defined

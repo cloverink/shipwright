@@ -24,7 +24,7 @@ model: opus | sonnet | haiku
 
 # /your-skill
 
-[Core instructions — what to do, how, when to stop]
+[Core instructions: what to do, how, when to stop]
 ```
 
 Then update three places:
@@ -35,22 +35,42 @@ Then update three places:
 
 For deeper guidance, see [`/skill-creator`](skills/skill-creator/SKILL.md).
 
+## Reviews use the shared agent
+
+Any skill that judges work spawns the read-only [`code-reviewer`](agents/code-reviewer.md) agent (Opus) with a lens,
+rather than reviewing inline or defining its own reviewer. Put the lens checklist in your skill under a clear heading
+and point the agent at it. If the skill loops, follow [Reviewer Continuity](patterns/reviewer-continuity.md).
+
+New agents go in `agents/<name>.md` and must be registered in `plugin.json` `agents`. CI rejects agents that are not
+registered, and reviewer agents that have `Edit` or `Write` tools.
+
+## README diagrams
+
+The README images are generated. Edit [`docs/diagrams/build.py`](docs/diagrams/build.py), then:
+
+```bash
+python3 docs/diagrams/build.py && python3 docs/diagrams/render.py   # needs Chrome/Chromium
+```
+
+Commit the HTML sources and the PNGs together.
+
 ## Conventions
 
 | Convention | Rule |
 |------------|------|
-| **Model field** | shorthand — `opus`, `sonnet`, `haiku` — NOT full IDs |
+| **Model field** | shorthand (`opus`, `sonnet`, `haiku`), NOT full IDs |
 | **CONFIGURE markers** | every project-specific value gets `<!-- CONFIGURE: ... -->` |
-| **Cross-references** | use bare skill names (`/audit-full`) not file paths |
+| **Cross-references** | bare skill names (`/audit-full`) in prose; relative links (`../audit-full/SKILL.md`) for navigation |
 | **Commit format** | Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`) |
 | **Scope in commits** | per-package scope when relevant (`fix(api):`, `docs(www):`) |
-| **Layout** | skills live FLAT under `skills/<name>/` — no bucket folders |
+| **Layout** | skills live FLAT under `skills/<name>/`: no bucket folders |
 
 ## Using existing patterns
 
-Four patterns are documented in [`patterns/`](patterns/):
+The patterns are documented in [`patterns/`](patterns/):
 
 - A→R→D→S Pipeline
+- Reviewer Continuity
 - Score Gates
 - Branch-Aware Mode
 - Phase Bundling
@@ -61,10 +81,11 @@ If your skill uses one, link to the pattern doc instead of re-explaining. If you
 
 `shipwright` ships strict skills. Match the bar:
 
-- SKILL.md is **actionable** — Claude can execute it, not just understand it
-- Has clear **exit conditions** — when does the skill report "done"?
-- Adheres to **score gates** — `>9` for code, `10/10` for UX, binary for docs
-- Has tested **bundling behavior** — sub-skills should suppress commits when called from `/ship`
+- SKILL.md is **actionable**: Claude can execute it, not just understand it
+- Has clear **exit conditions**: when does the skill report "done"?
+- Adheres to **score gates**: `≥ 9.5` for code, `10/10` for UX, binary for docs
+- Has tested **bundling behavior**: sub-skills stage instead of commit when called from `/ship`
+- **Reviewers never write**: judgment comes from the read-only agent, fixes from the orchestrating session
 
 ## Templates
 

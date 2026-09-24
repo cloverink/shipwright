@@ -1,7 +1,10 @@
 {
   "name": "shipwright",
-  "description": "Production-grade shipping pipeline: audit → review → docs → PR",
+  "description": "Production-grade shipping pipeline: parallel Opus audit + review, same reviewer across fix rounds, docs sync, PR",
   "version": "0.1.1",
+  "author": {
+    "name": "Aran Chananar"
+  },
   "skills": [
     "./skills/ship",
     "./skills/push",
@@ -15,5 +18,8 @@
     "./skills/parallel-builder",
     "./skills/frontend-design",
     "./skills/skill-creator"
+  ],
+  "agents": [
+    "./agents/code-reviewer.md"
   ]
 }
